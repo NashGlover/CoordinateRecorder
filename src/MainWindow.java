@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
+import java.awt.Toolkit;
 
 public class MainWindow extends JFrame {
 	
@@ -32,6 +33,7 @@ public class MainWindow extends JFrame {
 	
 	public void initComponents() {
 		
+		Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		logText = new JTextArea(30, 50);
 		JScrollPane logScroller = new JScrollPane(logText);
 		distanceLabel = new JLabel("Distance from start to end: ");
@@ -51,6 +53,10 @@ public class MainWindow extends JFrame {
 		JPanel anchorButtonPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		JPanel mainPanel = new JPanel();
+		JPanel titlePanel = new JPanel();
+		Dimension titleSize = new Dimension();
+		titleSize.setSize(screenSize.getWidth(), (screenSize.getHeight()-600)/2);
+		titlePanel.setPreferredSize(titleSize);
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 		JPanel distancePanel = new JPanel();
 		distanceLabel.setMaximumSize(new Dimension(1000000, 22));
@@ -91,6 +97,7 @@ public class MainWindow extends JFrame {
 		anchorSidePanel.setLayout(new BoxLayout(anchorSidePanel, BoxLayout.Y_AXIS));
 		//anchorSidePanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 		
+		pane.add(titlePanel, BorderLayout.NORTH);
 		pane.add(mainPanel, BorderLayout.CENTER);
 		pane.add(scroller, BorderLayout.EAST);
 		anchorTitlePanel.setMaximumSize(new Dimension(15000, 24));
