@@ -1,4 +1,7 @@
 
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JWindow;
 import javax.swing.JFrame;
 
@@ -21,6 +24,9 @@ public class Main {
 	Integer screenWidth;
 	Integer startHeight;
 	Integer windowWidth;
+	Integer startSouthWindow;
+	
+	JTextArea logText;
 	
 	public Main() {
 		JFrame frame = new JFrame();
@@ -35,6 +41,8 @@ public class Main {
 		screenWidth = new Double(screenSize.getWidth()).intValue();
 		startHeight = (screenHeight - 600)/2;
 		windowWidth = (screenWidth-1024)/2;
+		Integer southWindowHeight = ((screenHeight-600)/2) - 40;
+		startSouthWindow = screenHeight - ((screenHeight - 600)/2);
 		Integer westWindowStart = screenWidth - windowWidth;
 				
 		JWindow eastWindow = new JWindow();
@@ -44,6 +52,19 @@ public class Main {
 		JWindow westWindow = new JWindow();
 		westWindow.setBounds(westWindowStart, startHeight, windowWidth, 600);
 		westWindow.setVisible(true);
+		
+		JWindow southWindow = new JWindow();
+		southWindow.setBounds(0, startSouthWindow, screenWidth, southWindowHeight);
+		System.out.println("South Window Start: " + startSouthWindow);
+		southWindow.setVisible(true);
+		
+		/* Add components to east window */
+		logText = new JTextArea();
+		logText.append("Nash Glover");
+		JScrollPane logScroller = new JScrollPane(logText);
+		logScroller.setPreferredSize(new Dimension(windowWidth, 600));
+		eastWindow.add(logScroller, BorderLayout.CENTER);
+		eastWindow.pack();
 	}
 	
 	public static void main (String args[]) {
