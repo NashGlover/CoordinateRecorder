@@ -1,9 +1,12 @@
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JWindow;
 import javax.swing.JFrame;
+import javax.swing.BorderFactory;
+import javax.swing.border.MatteBorder;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -28,10 +31,34 @@ public class Main {
 	
 	JTextArea logText;
 	
+	/* Windows */
+	JWindow northWindow;
+	JWindow eastWindow;
+	JWindow westWindow;
+	JWindow southWindow;
+	
+	JFrame frame;
+	
 	public Main() {
-		JFrame frame = new JFrame();
+		frame = new JFrame();
+		frame.addWindowListener(new java.awt.event.WindowAdapter() {
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				exitProgram();
+			}
+		});
 		frame.setVisible(true);
 		initComponents();
+	}
+	
+	public void exitProgram() {
+		System.out.println("You closed it!");
+		northWindow.dispose();
+		southWindow.dispose();
+		westWindow.dispose();
+		eastWindow.dispose();
+		frame.dispose();
+		System.exit(0);
 	}
 	
 	public void initComponents() {
@@ -45,15 +72,26 @@ public class Main {
 		startSouthWindow = screenHeight - ((screenHeight - 600)/2);
 		Integer westWindowStart = screenWidth - windowWidth;
 				
-		JWindow eastWindow = new JWindow();
+		northWindow = new JWindow();
+		JPanel northLeftPanel = new JPanel();
+		northLeftPanel.setPreferredSize(new Dimension(windowWidth, southWindowHeight+40));
+		northWindow.setBounds(0, 0, screenWidth, southWindowHeight + 40);
+		northWindow.setVisible(true);
+		
+		eastWindow = new JWindow();
 		eastWindow.setBounds(0, startHeight, windowWidth, 600);
+		//eastWindow.getRootPane().setBorder(new MatteBorder(4,4,4,4,Color.BLUE));
+		//JPanel eastWindowPanel = new JPanel();
+		//eastWindowPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+		//eastWindow.add(eastWindowPanel);
 		eastWindow.setVisible(true);
 		
-		JWindow westWindow = new JWindow();
+		westWindow = new JWindow();
 		westWindow.setBounds(westWindowStart, startHeight, windowWidth, 600);
+		westWindow.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		westWindow.setVisible(true);
 		
-		JWindow southWindow = new JWindow();
+		southWindow = new JWindow();
 		southWindow.setBounds(0, startSouthWindow, screenWidth, southWindowHeight);
 		System.out.println("South Window Start: " + startSouthWindow);
 		southWindow.setVisible(true);
