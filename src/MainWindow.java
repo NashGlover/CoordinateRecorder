@@ -7,10 +7,12 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
 import java.awt.Toolkit;
+import java.awt.Rectangle;
 
 public class MainWindow extends JFrame {
 	
@@ -22,18 +24,22 @@ public class MainWindow extends JFrame {
 	
 	JTextArea logText;
 	JLabel distanceLabel;
+	Dimension screenSize;
 	
 	CoordinateRecorder recorder;
 	
 	public MainWindow() {
 		//CoordinateRecorder recorder = new CoordinateRecorder();
-		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		//this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		this.setUndecorated(true);
+		screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		Double screenWidth = new Double(screenSize.getWidth());
+		this.setPreferredSize(new Dimension(screenWidth.intValue(), 1040));
 		initComponents();
 	}
 	
 	public void initComponents() {
 		
-		Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		logText = new JTextArea(30, 50);
 		JScrollPane logScroller = new JScrollPane(logText);
 		distanceLabel = new JLabel("Distance from start to end: ");
@@ -115,6 +121,8 @@ public class MainWindow extends JFrame {
 		anchorSidePanel.add(new AnchorPanel(recorder));
 
 		addAnchorButton.addActionListener(new AnchorActionListener(anchorSidePanel));
+		Rectangle newSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+		System.out.println(newSize.getHeight());
 		pack();
 		System.out.println(anchorSidePanel.getHeight());
 		System.out.println(bottomPanel.getWidth());
