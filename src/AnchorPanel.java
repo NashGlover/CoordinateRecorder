@@ -27,6 +27,7 @@ public class AnchorPanel extends JPanel {
 		xTextField = new JTextField();
 		yTextField = new JTextField();
 		zTextField = new JTextField();
+                
 		setButton = new JButton("Set");
 		setButton.addActionListener(new ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -70,7 +71,7 @@ public class AnchorPanel extends JPanel {
 		add(hereButton);
 	}
 	
-	public void setButtonActionPerformed(ActionEvent evt) {
+	private void setButtonActionPerformed(ActionEvent evt) {
 		coordinate = new Coordinate(Double.parseDouble(xTextField.getText()), Double.parseDouble(yTextField.getText()), Double.parseDouble(zTextField.getText()));
 		xTextField.setEnabled(false);
 		yTextField.setEnabled(false);
@@ -79,7 +80,8 @@ public class AnchorPanel extends JPanel {
 		System.out.println("Button pressed");
 	}
 	
-	public void hereButtonActionPerformed(ActionEvent evt) {
-		recorder.setAnchor(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+	private void hereButtonActionPerformed(ActionEvent evt) {
+                System.out.println("Here button pressed");
+		//recorder.setAnchor(coordinate.getX(), coordinate.getY(), coordinate.getZ());
 	}
 }

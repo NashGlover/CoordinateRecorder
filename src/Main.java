@@ -1,4 +1,5 @@
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JLabel;
@@ -9,6 +10,8 @@ import javax.swing.JWindow;
 import javax.swing.JFrame;
 import javax.swing.BorderFactory;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.MatteBorder;
 import javax.swing.JRootPane;
 
@@ -32,6 +35,7 @@ public class Main {
 	Integer startHeight;
 	Integer windowWidth;
 	Integer startSouthWindow;
+        int numPanes = 65;
 	
 	JTextArea logText;
 	
@@ -40,7 +44,7 @@ public class Main {
 	JWindow eastWindow;
 	JWindow westWindow;
 	JWindow southWindow;
-	
+	JPanel eastPanel;
 	JFrame frame;
 	
 	JButton startButton;
@@ -88,12 +92,13 @@ public class Main {
 		startSouthWindow = screenHeight - ((screenHeight - 600)/2);
 		Integer westWindowStart = screenWidth - windowWidth;
 				
-		northWindow = new JWindow();
+		northWindow = new JWindow(frame);
 		JPanel northLeftPanel = new JPanel();
 		JPanel northCenterPanel = new JPanel();
 		JPanel northRightPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
-		JPanel westPanel = new JPanel();
+		eastPanel = new JPanel();
+                JScrollPane eastScroll = new JScrollPane(eastPanel);
 		JLabel centerLabel = new JLabel("AIONAV Tracking");
 		centerLabel.setFont(new Font(centerLabel.getFont().toString(), Font.PLAIN, 16));
 		JLabel loggingLabel = new JLabel("Logging");
@@ -132,20 +137,30 @@ public class Main {
 		northWindow.setVisible(true);
 		
 		/* East Window set up */
-		eastWindow = new JWindow();
-		eastWindow.setBounds(0, startHeight, windowWidth, 600);
-		eastWindow.setVisible(true);
-		
-		/* West Window set up */
-		westWindow = new JWindow();
-		westWindow.setBounds(westWindowStart, startHeight, windowWidth, 600);
-		westWindow.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
-		westPanel.setLayout(new FlowLayout());
-		westWindow.add(westPanel);
+		westWindow = new JWindow(frame);
+		westWindow.setBounds(0, startHeight, windowWidth, 600);
 		westWindow.setVisible(true);
 		
+		/* West Window set up */
+		eastWindow = new JWindow(frame);
+		eastWindow.setBounds(westWindowStart, startHeight, windowWidth, 600);
+		System.out.println("West window start" + westWindowStart);
+		System.out.println("West window width " + windowWidth);
+		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+		JButton test = new JButton("Test");
+                logText = new JTextArea();
+                recorder = new CoordinateRecorder(logText);
+                AnchorPane firstPane = new AnchorPane((char)numPanes, recorder);
+                firstPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		eastPanel.add(firstPane);
+		//eastPanel.add(test);
+		eastWindow.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		eastWindow.add(eastScroll);
+		eastWindow.setVisible(true);
+		//eastWindow.pack();
+		
 		/* South window set up */
-		southWindow = new JWindow();
+		southWindow = new JWindow(frame);
 		southWindow.setBounds(0, startSouthWindow, screenWidth, southWindowHeight);
 		bottomPanel.add(startButton);
 		bottomPanel.add(markButton);
@@ -156,10 +171,9 @@ public class Main {
 		southWindow.setVisible(true);
 		
 		/* Add components to east window */
-		logText = new JTextArea();
 		JScrollPane logScroller = new JScrollPane(logText);
 		logScroller.setPreferredSize(new Dimension(windowWidth, 600));
-		eastWindow.add(logScroller, BorderLayout.CENTER);
+		westWindow.add(logScroller, BorderLayout.CENTER);
 		
 		startButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -173,16 +187,22 @@ public class Main {
 			}
 		});
 		
+		addAnchorButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				addAnchorButtonActionPerformed(evt);
+			}
+		});
+		
 		markButton.setEnabled(false);
 		endButton.setEnabled(false);
 		saveButton.setEnabled(false);
 		
-		recorder = new CoordinateRecorder(logText);
 		
-		eastWindow.pack();
+		//westWindow.pack();
 	}
 	
-	public void startButtonActionPerformed(ActionEvent evt) {
+	/* Listen for start button click */
+	private void startButtonActionPerformed(ActionEvent evt) {
 		recorder.start();
 		startButton.setEnabled(false);
 		markButton.setEnabled(true);
@@ -190,12 +210,39 @@ public class Main {
 		saveButton.setEnabled(true);
 	}
 	
+	/* Listen for mark button click */
 	private void markButtonActionPerformed(ActionEvent evt) {
 		recorder.mark=true;
 		recorder.getSegInfo();
 	}
 	
+	/* Listen for add anchor button click */
+	private void addAnchorButtonActionPerformed(ActionEvent evt) {
+                numPanes++;
+                System.out.println("Add new anchor point");
+                AnchorPane newAnchorPane = new AnchorPane((char)numPanes, recorder);
+                newAnchorPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		eastPanel.add(newAnchorPane);
+                eastWindow.revalidate();
+	}
+	
 	public static void main (String args[]) {
-		Main main = new Main();
+		javax.swing.SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (UnsupportedLookAndFeelException e) {
+					
+				} catch (IllegalAccessException illegalE) {
+					
+				} catch (InstantiationException instantiationE) {
+					
+				} catch (ClassNotFoundException classE) {
+					
+				}
+				new Main();
+			}
+		});
+
 	}
 }

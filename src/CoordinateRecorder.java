@@ -15,7 +15,8 @@ import java.util.Date;
 */
 public class CoordinateRecorder extends Thread {
     
-	String distanceStart = "Distance from beginning to end: ";
+    Map<Character, Coordinate> anchorPoints = new HashMap<Character, Coordinate>();
+    String distanceStart = "Distance from beginning to end: ";
     ArrayList<Coordinate> aionavCoordinates = new ArrayList<Coordinate>(300);
     Boolean marked = false;
     Boolean correcting = false;
@@ -30,17 +31,26 @@ public class CoordinateRecorder extends Thread {
     public Boolean running;
     int correctCount = 0;
     Boolean first = true;
+    Socket clientSocket;
     
-    /* NOT SAFE */
     CoordinateRecorder(JTextArea inTextArea){
         System.out.println("In CoordinateRecorder");
         workingText = inTextArea;
     }
     
-    public void setAnchor (Double _x, Double _y, Double _z) {
-        firstX = _x;
-        firstY = _y;
-        firstZ = _z;
+    public void setAnchor (Coordinate _coordinate, char _character) {
+        System.out.println("In set anchor");
+        Coordinate coordinate = _coordinate;
+        Character character = new Character(_character);
+        anchorPoints.put(character, coordinate);
+        System.out.println("New Anchor Size: " + anchorPoints.size());
+    }
+    
+    public void atAnchor(char character) {
+        Coordinate coordinate = (Coordinate)anchorPoints.get(character);
+        firstX = coordinate.getX();
+        firstY = coordinate.getY();
+        firstZ = coordinate.getZ();
         first = true;
     }
     
@@ -68,7 +78,8 @@ public class CoordinateRecorder extends Thread {
     }
     
     void startCorrection() {
-        double startX;
+        
+    	double startX;
         double startY;
         double startZ;
         
@@ -77,7 +88,6 @@ public class CoordinateRecorder extends Thread {
             startY = y;
             startZ = z;
         }
-        
         
     }
     
@@ -98,7 +108,7 @@ public class CoordinateRecorder extends Thread {
         try {
             String currLine;
             String fileName = "log" + startTime + ".txt";
-            Socket clientSocket = new Socket("localhost", 2222);
+            clientSocket = new Socket("localhost", 2222);
             DataInputStream in = new DataInputStream(clientSocket.getInputStream());
             int i = 0;
             
@@ -106,7 +116,6 @@ public class CoordinateRecorder extends Thread {
                 currTime = System.currentTimeMillis();
                 System.out.printf("CURRENT TIME: %d%n", currTime);
                 bytesRead = in.read(messageByte);
-        // System.out.printf("Bytes read: %d%n", bytesRead);
                 ByteBuffer buffer = ByteBuffer.wrap(messageByte);
                 
                 if (bytesRead == 56 || bytesRead == 32)
@@ -114,8 +123,7 @@ public class CoordinateRecorder extends Thread {
                         length = buffer.getInt();
                         packet_type = buffer.getInt(4);
                         if (bytesRead == 32){
-                                //length = ByteBuffer.wrap(messageByte).getInt();
-                 System.out.println("Heartbeat");
+                                System.out.println("Heartbeat");
                                 
                                 length = buffer.getInt();
                                 packet_type = buffer.getInt(4);
@@ -126,7 +134,6 @@ public class CoordinateRecorder extends Thread {
                                 Date currentDate = new Date(timestamp);
                                 DateFormat df = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
                                 System.out.println("Current Date: " + df.format(currentDate));
-                        // System.out.printf("Length: %d, Packet Type: %d, Device ID: %d %d, Timestamp: %d%n", length, packet_type, device_id, device_id2, timestamp);
                         }
                         if (bytesRead == 56) {
                                 System.out.println("Position Update");
@@ -153,10 +160,6 @@ public class CoordinateRecorder extends Thread {
                                         DateFormat df = new SimpleDateFormat("MM-dd-yy HH:mm:ss ");
                                         String dateString = df.format(currentDate);
                                         
-                                        /*x = Math.round(buffer.getDouble(32)*1000.00)/1000.00;
-y = Math.round(buffer.getDouble(40)*1000.00)/1000.00;
-z = Math.round(buffer.getDouble(48)*1000.00)/1000.00;*/
-                                        
                                         x = buffer.getDouble(32);
                                         y = buffer.getDouble(40);
                                         z = buffer.getDouble(48);
@@ -177,6 +180,21 @@ z = Math.round(buffer.getDouble(48)*1000.00)/1000.00;*/
                                         y = y - differenceY;
                                         z = z - differenceZ;
                                         
+                                        Iterator it = anchorPoints.entrySet().iterator();
+                                        System.out.println("Size of anchorPoints " + anchorPoints.size());
+                                        while (it.hasNext()) {
+                                            System.out.println("In the while loop");
+                                            Map.Entry pair = (Map.Entry)it.next();
+                                            Character characterPair = ((Character)pair.getKey());
+                                            Double entryX = ((Coordinate)pair.getValue()).getX();
+                                            Double entryY = ((Coordinate)pair.getValue()).getY();
+                                            Double distance = Math.sqrt(Math.pow(entryX-x,2) + Math.pow(entryY-y,2));
+                                            System.out.println("Distance: " + distance);
+                                            if (distance < 2.0) {
+                                                workingText.append("At anchor point " + characterPair + "\n");
+                                            }
+                                        }
+                                        
                                         currLine = String.format("Time: " + dateString + "x: %.3f y: %.3f z: %.3f%n%n", x, y, z);
                                         System.out.println(currLine);
                                         workingText.append(currLine);
@@ -194,13 +212,8 @@ z = Math.round(buffer.getDouble(48)*1000.00)/1000.00;*/
                                 }
                         }
                 }
-                //packet_type = ByteBuffer.wrap(messageByte, 4, 4).getInt();
-                //packet_type = ByteBuffer.getInt(4);
-                //ength = in.readInt();
-                //System.out.printf("Bytes read: %d\n Packet Type: %d\n", length, packet_type);
 
             }
-            //fw.close();
             Double totalDisplacement = Math.sqrt(Math.pow(beginX-x, 2)+Math.pow(beginY-y,2));
             String totalDisplacementText = "TOTAL DISPLACEMENT: " + String.valueOf(totalDisplacement) + String.format("%n");
             workingText.append(totalDisplacementText);
@@ -210,7 +223,14 @@ z = Math.round(buffer.getDouble(48)*1000.00)/1000.00;*/
             System.out.printf("Done");
         }
         catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("Disconnected!");
+            try {
+                clientSocket.shutdownInput();
+                clientSocket.shutdownOutput();
+                clientSocket.close();
+            } catch (IOException ioException) {
+                System.out.println("Error in closing socket");
+            }
         }
         
     }
@@ -221,13 +241,5 @@ z = Math.round(buffer.getDouble(48)*1000.00)/1000.00;*/
         startRecording();
         return;
     }
-    public static void main(String[] args) {
-        // TODO code application logic here
-        
-    }
-
-    /*void setAnchor(double parseDouble, double parseDouble0) {
-throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-}*/
     
 }
