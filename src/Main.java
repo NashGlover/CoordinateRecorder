@@ -47,6 +47,9 @@ public class Main {
 	JButton endButton;
 	JButton markButton;
 	JButton saveButton;
+	JButton addAnchorButton;
+	
+	CoordinateRecorder recorder;
 	
 	public Main() {
 		frame = new JFrame();
@@ -90,6 +93,7 @@ public class Main {
 		JPanel northCenterPanel = new JPanel();
 		JPanel northRightPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
+		JPanel westPanel = new JPanel();
 		JLabel centerLabel = new JLabel("AIONAV Tracking");
 		centerLabel.setFont(new Font(centerLabel.getFont().toString(), Font.PLAIN, 16));
 		JLabel loggingLabel = new JLabel("Logging");
@@ -110,8 +114,10 @@ public class Main {
 		
 		anchorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		anchorLabel.setVerticalAlignment(SwingConstants.BOTTOM);
+		addAnchorButton = new JButton("Add");
 		northRightPanel.setLayout(new BorderLayout());
 		northRightPanel.add(anchorLabel, BorderLayout.CENTER);
+		northRightPanel.add(addAnchorButton, BorderLayout.SOUTH);
 		northRightPanel.setPreferredSize(new Dimension(windowWidth, southWindowHeight+40));
 		northRightPanel.setMaximumSize(new Dimension(windowWidth, southWindowHeight+40));
 		
@@ -134,6 +140,8 @@ public class Main {
 		westWindow = new JWindow();
 		westWindow.setBounds(westWindowStart, startHeight, windowWidth, 600);
 		westWindow.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		westPanel.setLayout(new FlowLayout());
+		westWindow.add(westPanel);
 		westWindow.setVisible(true);
 		
 		/* South window set up */
@@ -159,17 +167,32 @@ public class Main {
 			}
 		});
 		
+		markButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				markButtonActionPerformed(evt);
+			}
+		});
+		
 		markButton.setEnabled(false);
 		endButton.setEnabled(false);
 		saveButton.setEnabled(false);
+		
+		recorder = new CoordinateRecorder(logText);
+		
 		eastWindow.pack();
 	}
 	
 	public void startButtonActionPerformed(ActionEvent evt) {
+		recorder.start();
 		startButton.setEnabled(false);
 		markButton.setEnabled(true);
 		endButton.setEnabled(true);
 		saveButton.setEnabled(true);
+	}
+	
+	private void markButtonActionPerformed(ActionEvent evt) {
+		recorder.mark=true;
+		recorder.getSegInfo();
 	}
 	
 	public static void main (String args[]) {

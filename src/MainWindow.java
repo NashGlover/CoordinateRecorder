@@ -44,7 +44,7 @@ public class MainWindow extends JFrame {
 		JScrollPane logScroller = new JScrollPane(logText);
 		distanceLabel = new JLabel("Distance from start to end: ");
 		distanceLabel.setMaximumSize(new Dimension(1000000, 22));
-		recorder = new CoordinateRecorder(logText, distanceLabel);
+		recorder = new CoordinateRecorder(logText);
 		Font font = new Font("Arial", Font.PLAIN, 12);
 		addAnchorButton = new JButton("Add Anchor");
 		startButton = new JButton("Start");

@@ -13,7 +13,7 @@ import java.util.Date;
 *sock
 * @author Administrator
 */
-public class CoordinateRecorder extends Thread {
+public class OldCoordinateRecorder extends Thread {
     
 	String distanceStart = "Distance from beginning to end: ";
     ArrayList<Coordinate> aionavCoordinates = new ArrayList<Coordinate>(300);
@@ -28,13 +28,15 @@ public class CoordinateRecorder extends Thread {
     private double anchorX = 0, anchorY = 0;
     JTextArea workingText;
     public Boolean running;
+    JLabel distanceLabel;
     int correctCount = 0;
     Boolean first = true;
     
     /* NOT SAFE */
-    CoordinateRecorder(JTextArea inTextArea){
+    OldCoordinateRecorder(JTextArea inTextArea, JLabel inDistanceLabel){
         System.out.println("In CoordinateRecorder");
         workingText = inTextArea;
+        distanceLabel = inDistanceLabel;
     }
     
     public void setAnchor (Double _x, Double _y, Double _z) {
@@ -188,6 +190,7 @@ z = Math.round(buffer.getDouble(48)*1000.00)/1000.00;*/
                                             Double feetDistance = distance * 3.28084;
                                             feetDistance = Math.round(feetDistance * 1000.00) / 1000.00;
                                             //System.out.printf("%f%n", distance);
+                                            distanceLabel.setText(distanceStart + String.format("%.3f", distance) + " m / " + String.format("%.3f feet", feetDistance));
                                         }
                                         //fw.flush();
                                         i++;
