@@ -35,7 +35,7 @@ public class Main {
 	Integer startHeight;
 	Integer windowWidth;
 	Integer startSouthWindow;
-        int numPanes = 65;
+    int numPanes = 65;
 	
 	JTextArea logText;
 	
@@ -98,7 +98,8 @@ public class Main {
 		JPanel northRightPanel = new JPanel();
 		JPanel bottomPanel = new JPanel();
 		eastPanel = new JPanel();
-                JScrollPane eastScroll = new JScrollPane(eastPanel);
+        
+		JScrollPane eastScroll = new JScrollPane(eastPanel);
 		JLabel centerLabel = new JLabel("AIONAV Tracking");
 		centerLabel.setFont(new Font(centerLabel.getFont().toString(), Font.PLAIN, 16));
 		JLabel loggingLabel = new JLabel("Logging");
@@ -148,10 +149,10 @@ public class Main {
 		System.out.println("West window width " + windowWidth);
 		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
 		JButton test = new JButton("Test");
-                logText = new JTextArea();
-                recorder = new CoordinateRecorder(logText);
-                AnchorPane firstPane = new AnchorPane((char)numPanes, recorder);
-                firstPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        logText = new JTextArea();
+        recorder = new CoordinateRecorder(logText);
+        AnchorPane firstPane = new AnchorPane((char)numPanes, recorder);
+        firstPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 		eastPanel.add(firstPane);
 		//eastPanel.add(test);
 		eastWindow.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -197,8 +198,6 @@ public class Main {
 		endButton.setEnabled(false);
 		saveButton.setEnabled(false);
 		
-		
-		//westWindow.pack();
 	}
 	
 	/* Listen for start button click */

@@ -195,7 +195,7 @@ public class CoordinateRecorder extends Thread {
                                             }
                                         }
                                         
-                                        currLine = String.format("Time: " + dateString + "x: %.3f y: %.3f z: %.3f%n%n", x, y, z);
+                                        currLine = String.format("Time: " + dateString + "%nx: %.3f%ny: %.3f%nz: %.3f%n%n", x, y, z);
                                         System.out.println(currLine);
                                         workingText.append(currLine);
                                         System.out.printf("FirstX: %f%n", firstX);
