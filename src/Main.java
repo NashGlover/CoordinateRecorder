@@ -52,6 +52,7 @@ public class Main {
 	JButton markButton;
 	JButton saveButton;
 	JButton addAnchorButton;
+	JButton headingXPlus;
 	
 	CoordinateRecorder recorder;
 	
@@ -78,11 +79,11 @@ public class Main {
 	}
 	
 	public void initComponents() {
-		
 		startButton = new JButton("Start");
 		markButton = new JButton("Mark");
 		endButton = new JButton("End");
 		saveButton = new JButton("Save to File...");
+		headingXPlus = new JButton("Heading X+");
 		Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		screenHeight = new Double(screenSize.getHeight()).intValue();
 		screenWidth = new Double(screenSize.getWidth()).intValue();
@@ -167,6 +168,7 @@ public class Main {
 		bottomPanel.add(markButton);
 		bottomPanel.add(endButton);
 		bottomPanel.add(saveButton);
+		bottomPanel.add(headingXPlus);
 		southWindow.add(bottomPanel);
 		System.out.println("South Window Start: " + startSouthWindow);
 		southWindow.setVisible(true);
@@ -191,6 +193,12 @@ public class Main {
 		addAnchorButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				addAnchorButtonActionPerformed(evt);
+			}
+		});
+		
+		headingXPlus.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				headingXPlusActionPerformed(evt);
 			}
 		});
 		
@@ -223,6 +231,11 @@ public class Main {
                 newAnchorPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 		eastPanel.add(newAnchorPane);
                 eastWindow.revalidate();
+	}
+	
+	/* Listen for heading X Plus button click */
+	private void headingXPlusActionPerformed(ActionEvent evt) {
+		recorder.heading();
 	}
 	
 	public static void main (String args[]) {

@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.*;
+
 import javax.swing.*;
 
 import java.text.DateFormat;
@@ -15,6 +16,7 @@ import java.util.Date;
 */
 public class CoordinateRecorder extends Thread {
     
+	int steps = 0;
     Map<Character, Coordinate> anchorPoints = new HashMap<Character, Coordinate>();
     String distanceStart = "Distance from beginning to end: ";
     ArrayList<Coordinate> aionavCoordinates = new ArrayList<Coordinate>(300);
@@ -27,16 +29,28 @@ public class CoordinateRecorder extends Thread {
     private double beginX = 0, beginY = 0, beginZ = 0;
     private double differenceX = 0, differenceY = 0, differenceZ = 0;
     private double anchorX = 0, anchorY = 0;
+    
+    double slope;
+    double vector;
+    
+    Coordinate realOrigin;
+    Coordinate firstStep;
+    Coordinate lastStep;
+    
     JTextArea workingText;
     public Boolean running;
     int correctCount = 0;
     Boolean first = true;
     Socket clientSocket;
+    GraphPlot plot;
+    Boolean heading = false;
     
     CoordinateRecorder(JTextArea inTextArea){
         System.out.println("In CoordinateRecorder");
         workingText = inTextArea;
+        plot = new GraphPlot();
     }
+    
     
     public void setAnchor (Coordinate _coordinate, char _character) {
         System.out.println("In set anchor");
@@ -164,10 +178,6 @@ public class CoordinateRecorder extends Thread {
                                         y = buffer.getDouble(40);
                                         z = buffer.getDouble(48);
                                         
-                                        Coordinate coordinate = new Coordinate(x, y, z, timestamp);
-                                        
-                                        aionavCoordinates.add(coordinate);
-                                        
                                         if (first)
                                         {
                                            differenceX = x - firstX;
@@ -175,10 +185,35 @@ public class CoordinateRecorder extends Thread {
                                            differenceZ = z = firstZ;
                                            first = false;
                                         }
-                                        
+                                        if (heading) {
+	                                        if (steps == 0) {
+	                                        	realOrigin = new Coordinate(x, y, z);
+	                                        	workingText.append("Real origin%n");
+	                                        	x = x - differenceX;
+	                                            y = y - differenceY;
+	                                            z = z - differenceZ;
+	                                        }
+	                                        else if (steps == 1) {
+	                                        	x = x - differenceX;
+	                                            y = y - differenceY;
+	                                            z = z - differenceZ;
+	                                        	workingText.append("First step%n");
+	                                        	firstStep = new Coordinate(x, y, z);
+	                                        	slope = (firstStep.getY() - realOrigin.getY()) / (firstStep.getX() - realOrigin.getX());
+	                                        	vector = Math.sqrt(1 + Math.pow(slope, 2));
+	                                        	x = lastStep.getX() + distance(firstStep.getX(), lastStep.getX(), firstStep.getY(), lastStep.getY());
+	                                        	y = lastStep.getY();
+	                                        }
+	                                        else {
+	                                        	x = x - differenceX;
+	                                            y = y - differenceY;
+	                                            z = z - differenceZ;
+	                                        }
+                                        }/*
                                         x = x - differenceX;
                                         y = y - differenceY;
-                                        z = z - differenceZ;
+                                        z = z - differenceZ;*/
+                                        
                                         
                                         Iterator it = anchorPoints.entrySet().iterator();
                                         System.out.println("Size of anchorPoints " + anchorPoints.size());
@@ -195,7 +230,11 @@ public class CoordinateRecorder extends Thread {
                                             }
                                         }
                                         
-                                        currLine = String.format("Time: " + dateString + "%nx: %.3f%ny: %.3f%nz: %.3f%n%n", x, y, z);
+                                        Coordinate coordinate = new Coordinate(x, y, z, timestamp);
+                                        aionavCoordinates.add(coordinate);
+                                        plot.addPoint(coordinate);
+                                        
+                                        currLine = String.format("Step: " + steps + "%nTime: " + dateString + "%nx: %.3f%ny: %.3f%nz: %.3f%n%n", x, y, z);
                                         System.out.println(currLine);
                                         workingText.append(currLine);
                                         System.out.printf("FirstX: %f%n", firstX);
@@ -209,10 +248,11 @@ public class CoordinateRecorder extends Thread {
                                         }
                                         //fw.flush();
                                         i++;
+                                        steps++;
+                                        lastStep = new Coordinate(x,y,z);
                                 }
                         }
                 }
-
             }
             Double totalDisplacement = Math.sqrt(Math.pow(beginX-x, 2)+Math.pow(beginY-y,2));
             String totalDisplacementText = "TOTAL DISPLACEMENT: " + String.valueOf(totalDisplacement) + String.format("%n");
@@ -232,7 +272,15 @@ public class CoordinateRecorder extends Thread {
                 System.out.println("Error in closing socket");
             }
         }
-        
+    }
+    
+    private double distance(double x1, double x2, double y1, double y2) {
+    	return Math.sqrt(Math.pow((x2-x1), 2) + Math.pow((y2-y1), 2));
+    }
+    
+    public void heading() {
+    	System.out.println("In heading");
+    	heading = true;
     }
     
     public void run()
