@@ -36,6 +36,8 @@ public class CoordinateRecorder extends Thread {
     Coordinate realOrigin;
     Coordinate firstStep;
     Coordinate lastStep;
+    Coordinate lastReal;
+    Coordinate realCoordinate;
     
     JTextArea workingText;
     public Boolean running;
@@ -44,6 +46,8 @@ public class CoordinateRecorder extends Thread {
     Socket clientSocket;
     GraphPlot plot;
     Boolean heading = false;
+    
+    double angleInDegrees;
     
     CoordinateRecorder(JTextArea inTextArea){
         System.out.println("In CoordinateRecorder");
@@ -128,7 +132,7 @@ public class CoordinateRecorder extends Thread {
             
             while (running){
                 currTime = System.currentTimeMillis();
-                System.out.printf("CURRENT TIME: %d%n", currTime);
+             //   System.out.printf("CURRENT TIME: %d%n", currTime);
                 bytesRead = in.read(messageByte);
                 ByteBuffer buffer = ByteBuffer.wrap(messageByte);
                 
@@ -137,17 +141,17 @@ public class CoordinateRecorder extends Thread {
                         length = buffer.getInt();
                         packet_type = buffer.getInt(4);
                         if (bytesRead == 32){
-                                System.out.println("Heartbeat");
+                              //  System.out.println("Heartbeat");
                                 
                                 length = buffer.getInt();
                                 packet_type = buffer.getInt(4);
                                 device_id = buffer.getLong(8);
                                 device_id2 = buffer.getLong(16);
                                 timestamp = buffer.getLong(24);
-                                System.out.println(timestamp);
+                              //  System.out.println(timestamp);
                                 Date currentDate = new Date(timestamp);
                                 DateFormat df = new SimpleDateFormat("dd:MM:yy:HH:mm:ss");
-                                System.out.println("Current Date: " + df.format(currentDate));
+                               // System.out.println("Current Date: " + df.format(currentDate));
                         }
                         if (bytesRead == 56) {
                                 System.out.println("Position Update");
@@ -177,13 +181,16 @@ public class CoordinateRecorder extends Thread {
                                         x = buffer.getDouble(32);
                                         y = buffer.getDouble(40);
                                         z = buffer.getDouble(48);
-                                        
+                                        realCoordinate = new Coordinate(x, y, z);
+                                        workingText.append("Real x: " + x + "\n");
+                                        workingText.append("Real y: " + y + "\n");
                                         if (first)
                                         {
-                                           differenceX = x - firstX;
-                                           differenceY = y - firstY;
-                                           differenceZ = z = firstZ;
-                                           first = false;
+                                        	System.out.println("In first");
+                                        	differenceX = x - firstX;
+                                        	differenceY = y - firstY;
+                                        	differenceZ = z = firstZ;
+                                        	first = false;
                                         }
                                         if (heading) {
 	                                        if (steps == 0) {
@@ -197,37 +204,117 @@ public class CoordinateRecorder extends Thread {
 	                                        	x = x - differenceX;
 	                                            y = y - differenceY;
 	                                            z = z - differenceZ;
-	                                        	workingText.append("First step%n");
+	                                            workingText.append("x: " + x + "\n");
+	                                            workingText.append("y: " + y + "\n");
+	                                            workingText.append("lastStep X: " + lastStep.getX() + "\n");
+	                                            workingText.append("lastStep Y: " + lastStep.getY() + "\n");
+	                                            double deltaX = x;
+	                                            double deltaY = y;
+	                                            
+	                                            workingText.append("deltaX: " + deltaX + "\n");
+	                                            workingText.append("deltaY: " + deltaY + "\n");
+	                                            
+	                                            angleInDegrees = Math.atan2(deltaY, deltaX) * 180/Math.PI;
+	                                            workingText.append("Angle in degrees: " + angleInDegrees + "/n");
+	                                        	angleInDegrees = -angleInDegrees;
+	                                        	double tempX, tempY;
+	                                        	
+	                                        	tempX = x*Math.cos(Math.toRadians(angleInDegrees)) - y*Math.sin(Math.toRadians(angleInDegrees));
+	                                        	tempY = x*Math.sin(Math.toRadians(angleInDegrees)) + y*Math.cos(Math.toRadians(angleInDegrees));
+	                                        	System.out.println("ThingX: " + tempX);
+	                                        	System.out.println("ThingY: " + tempY);
+	                                            x = x*Math.cos(Math.toRadians(angleInDegrees)) - y*Math.sin(Math.toRadians(angleInDegrees));
+	                                    		y = tempY;
+	                                            
+	                                    		workingText.append("New y: " + y + "/n");
+	                                    		System.out.println("y: " + y);
+	                                    		
+	                                            workingText.append("First step%n");
 	                                        	firstStep = new Coordinate(x, y, z);
-	                                        	slope = (firstStep.getY() - realOrigin.getY()) / (firstStep.getX() - realOrigin.getX());
-	                                        	vector = Math.sqrt(1 + Math.pow(slope, 2));
-	                                        	x = lastStep.getX() + distance(firstStep.getX(), lastStep.getX(), firstStep.getY(), lastStep.getY());
-	                                        	y = lastStep.getY();
+	                                        	//x = lastStep.getX() + distance(firstStep.getX(), lastStep.getX(), firstStep.getY(), lastStep.getY());
+	                                        	//y = lastStep.getY();
 	                                        }
 	                                        else {
+	                                        /*	double distance = distance(realCoordinate.getX(), lastReal.getX(), realCoordinate.getY(), lastReal.getY());
+	                                        	workingText.append("Distance from this step and last: " + distance + "\n");
+	                                        	double x1, y1;
+	                                        	/*x = x - differenceX;
+	                                            y = y - differenceY;
+	                                            z = z - differenceZ;*/
+	                                        	/*
+	                                            if (x - lastReal.getX() >= 0) {
+	                                            	x1 = lastReal.getX() + (distance/vector);
+	                                            	y1 = lastReal.getY() + ((slope*distance)/vector);
+	                                            	workingText.append("x1: " + x1);
+	                                            	workingText.append("y1" + y1);
+	                                            	
+	                                            	double differenceX = x - x1;
+	                                            	double differenceY = y- y1;
+	                                            	
+	                                            	x = lastStep.getX() + differenceX;
+	                                            	y = lastStep.getY() + differenceY;
+	                                            }
+	                                            else {
+	                                            	x1 = lastReal.getX() - (distance/vector);
+	                                            	y1 = lastReal.getY() - ((slope*distance)/vector);
+	                                            	
+	                                            	workingText.append("x1: " + x1);
+	                                            	workingText.append("y1" + y1);
+	                                            	
+	                                            	double differenceX = x - x1;
+	                                            	double differenceY = y - y1;
+	                                          
+	                                            	workingText.append("differenceX: " + differenceX + "/n");
+	                                            	
+	                                            	workingText.append("differenceY: " + differenceY + "/n");
+	                                            	
+	                                            	x = (lastStep.getX() + distance) + differenceX;
+	                                            	y = lastStep.getY() + differenceY;
+	                                            }*/
+	                                        	
 	                                        	x = x - differenceX;
 	                                            y = y - differenceY;
 	                                            z = z - differenceZ;
+	                                        	
+	                                        	double tempX, tempY;
+	                                        	
+	                                        	tempX = x*Math.cos(Math.toRadians(angleInDegrees)) - y*Math.sin(Math.toRadians(angleInDegrees));
+	                                        	tempY = x*Math.sin(Math.toRadians(angleInDegrees)) + y*Math.cos(Math.toRadians(angleInDegrees));
+	                                        	
+	                                        	x = tempX;
+	                                    		y = tempY;
 	                                        }
-                                        }/*
-                                        x = x - differenceX;
-                                        y = y - differenceY;
-                                        z = z - differenceZ;*/
+                                        } else {
+                                        	x = x - differenceX;
+	                                        y = y - differenceY;
+	                                        z = z - differenceZ;
+                                        }
                                         
                                         
                                         Iterator it = anchorPoints.entrySet().iterator();
                                         System.out.println("Size of anchorPoints " + anchorPoints.size());
+                                        Character characterPair = null;
+                                        Double oldDistance = null;
                                         while (it.hasNext()) {
                                             System.out.println("In the while loop");
                                             Map.Entry pair = (Map.Entry)it.next();
-                                            Character characterPair = ((Character)pair.getKey());
                                             Double entryX = ((Coordinate)pair.getValue()).getX();
                                             Double entryY = ((Coordinate)pair.getValue()).getY();
                                             Double distance = Math.sqrt(Math.pow(entryX-x,2) + Math.pow(entryY-y,2));
                                             System.out.println("Distance: " + distance);
                                             if (distance < 2.0) {
-                                                workingText.append("At anchor point " + characterPair + "\n");
+                                            	if (oldDistance == null) {
+                                            		oldDistance = null;
+                                            	}
+                                            	if (oldDistance == null || distance <= oldDistance) {
+                                            		characterPair = ((Character)pair.getKey());
+                                            	}
+                                            	oldDistance = distance;
                                             }
+                                        }
+                                        
+                                        if (characterPair != null) {
+                                        	workingText.append("At anchor point " + characterPair + "\n");
                                         }
                                         
                                         Coordinate coordinate = new Coordinate(x, y, z, timestamp);
@@ -250,6 +337,7 @@ public class CoordinateRecorder extends Thread {
                                         i++;
                                         steps++;
                                         lastStep = new Coordinate(x,y,z);
+                                        lastReal = realCoordinate;
                                 }
                         }
                 }
@@ -263,6 +351,7 @@ public class CoordinateRecorder extends Thread {
             System.out.printf("Done");
         }
         catch (Exception e) {
+        	System.out.println(e.getMessage());
             System.out.println("Disconnected!");
             try {
                 clientSocket.shutdownInput();
