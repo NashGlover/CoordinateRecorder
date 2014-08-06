@@ -84,6 +84,8 @@ public class Main {
 		endButton = new JButton("End");
 		saveButton = new JButton("Save to File...");
 		headingXPlus = new JButton("Heading X+");
+		JButton exitButton = new JButton("Exit");
+		
 		Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		screenHeight = new Double(screenSize.getHeight()).intValue();
 		screenWidth = new Double(screenSize.getWidth()).intValue();
@@ -169,6 +171,8 @@ public class Main {
 		bottomPanel.add(endButton);
 		bottomPanel.add(saveButton);
 		bottomPanel.add(headingXPlus);
+		bottomPanel.add(exitButton);
+		
 		southWindow.add(bottomPanel);
 		System.out.println("South Window Start: " + startSouthWindow);
 		southWindow.setVisible(true);
@@ -199,6 +203,12 @@ public class Main {
 		headingXPlus.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				headingXPlusActionPerformed(evt);
+			}
+		});
+		
+		exitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				exitProgram();
 			}
 		});
 		

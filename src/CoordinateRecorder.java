@@ -23,6 +23,7 @@ public class CoordinateRecorder extends Thread {
     Boolean marked = false;
     Boolean correcting = false;
     Boolean mark = false;
+    private double anchorDiffX = 0, anchorDiffY = 0;
     private Integer markCount = 0;
     private double x = 0, y = 0, z = 0;
     private double firstX = 0, firstY = 0, firstZ = 0;
@@ -66,10 +67,14 @@ public class CoordinateRecorder extends Thread {
     
     public void atAnchor(char character) {
         Coordinate coordinate = (Coordinate)anchorPoints.get(character);
-        firstX = coordinate.getX();
+        anchorDiffX = coordinate.getX() - lastStep.getX();
+        anchorDiffY = coordinate.getY() - lastStep.getY();
+        System.out.println("The difference between the current and anchor point: " + anchorDiffX + " " + anchorDiffY);
+        plot.addAnchorPoint(coordinate);
+       /* firstX = coordinate.getX();
         firstY = coordinate.getY();
         firstZ = coordinate.getZ();
-        first = true;
+        first = true;*/
     }
     
     void getSegInfo()
@@ -184,14 +189,17 @@ public class CoordinateRecorder extends Thread {
                                         realCoordinate = new Coordinate(x, y, z);
                                         workingText.append("Real x: " + x + "\n");
                                         workingText.append("Real y: " + y + "\n");
+                                        
                                         if (first)
                                         {
                                         	System.out.println("In first");
                                         	differenceX = x - firstX;
                                         	differenceY = y - firstY;
                                         	differenceZ = z = firstZ;
+                                        	System.out.println("DifferenceX: " + differenceX + " DifferenceY: " + differenceY + "DifferenceZ: " + differenceZ);
                                         	first = false;
                                         }
+                                        
                                         if (heading) {
 	                                        if (steps == 0) {
 	                                        	realOrigin = new Coordinate(x, y, z);
@@ -235,6 +243,7 @@ public class CoordinateRecorder extends Thread {
 	                                        	//y = lastStep.getY();
 	                                        }
 	                                        else {
+	                                        	System.out.println("In more than 1 step");
 	                                        /*	double distance = distance(realCoordinate.getX(), lastReal.getX(), realCoordinate.getY(), lastReal.getY());
 	                                        	workingText.append("Distance from this step and last: " + distance + "\n");
 	                                        	double x1, y1;
@@ -271,15 +280,22 @@ public class CoordinateRecorder extends Thread {
 	                                            	x = (lastStep.getX() + distance) + differenceX;
 	                                            	y = lastStep.getY() + differenceY;
 	                                            }*/
-	                                        	
-	                                        	x = x - differenceX;
-	                                            y = y - differenceY;
-	                                            z = z - differenceZ;
+	                                       
 	                                        	
 	                                        	double tempX, tempY;
 	                                        	
+	                                        	x = x - differenceX;
+	                                        	y = y - differenceY;
+	                                        	z = z - differenceZ;
+	                                        	
 	                                        	tempX = x*Math.cos(Math.toRadians(angleInDegrees)) - y*Math.sin(Math.toRadians(angleInDegrees));
 	                                        	tempY = x*Math.sin(Math.toRadians(angleInDegrees)) + y*Math.cos(Math.toRadians(angleInDegrees));
+	                                        	
+	                                        	tempX = tempX + anchorDiffX;
+	                                        	tempY = tempY + anchorDiffY;
+	                                        	/*tempX = x - differenceX;
+	                                            tempY = y - differenceY;*/
+	                                           // tempZ = z - differenceZ;
 	                                        	
 	                                        	x = tempX;
 	                                    		y = tempY;
@@ -296,7 +312,7 @@ public class CoordinateRecorder extends Thread {
                                         Character characterPair = null;
                                         Double oldDistance = null;
                                         while (it.hasNext()) {
-                                            System.out.println("In the while loop");
+                                            //System.out.println("In the while loop");
                                             Map.Entry pair = (Map.Entry)it.next();
                                             Double entryX = ((Coordinate)pair.getValue()).getX();
                                             Double entryY = ((Coordinate)pair.getValue()).getY();

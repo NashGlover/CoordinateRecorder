@@ -19,9 +19,15 @@ import javax.swing.event.ChangeListener;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.event.AxisChangeEvent;
+import org.jfree.chart.event.AxisChangeListener;
+import org.jfree.chart.event.ChartChangeListener;
+import org.jfree.chart.event.PlotChangeEvent;
+import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYDataset;
@@ -47,13 +53,13 @@ public class GraphPlot {
         	System.out.println("Size of series: " + series.getItemCount());
         	xyDataset = new XYSeriesCollection(series);
         	plot.setDataset(xyDataset);
-        	lastCoordinate = new Coordinate(coordinate.getX(), coordinate.getY(), coordinate.getZ());
     	}
     	else {
     		final XYSeries newSeries = new XYSeries(i);
     		newSeries.add(lastCoordinate.getX(), lastCoordinate.getY());
-    		newSeries.add(coordinate.getX(), lastCoordinate.getY());
-    		plot.getRenderer().setSeriesPaint(0, Color.RED);
+    		newSeries.add(coordinate.getX(), coordinate.getY());
+    		plot.getRenderer().setSeriesPaint(i, Color.RED);
+    		plot.getRenderer().setSeriesPaint(i+1, Color.RED);	
     		XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
     		newDataset.addSeries(newSeries);
     		plot.setDataset(newDataset);
@@ -64,6 +70,11 @@ public class GraphPlot {
     	System.out.println("Size of series: " + series.getItemCount());
     	xyDataset = new XYSeriesCollection(series);
     	plot.setDataset(xyDataset);*/
+    	lastCoordinate = new Coordinate(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+    }
+    
+    public static void addAnchorPoint(Coordinate coordinate) {
+    	lastCoordinate = coordinate;
     }
     
 	private static XYDataset getDataset(int n) {
@@ -79,8 +90,9 @@ public class GraphPlot {
 	
     private static JFreeChart createChart(final XYDataset dataset) {
         JFreeChart chart = ChartFactory.createXYLineChart(
-            "Map", "Length (m)", "Temp (K°)", dataset,
+            "Map", "X", "Y", dataset,
             PlotOrientation.VERTICAL, false, false, false);
+        ChartUtilities.applyCurrentTheme(chart);
         return chart;
     }
 	
@@ -99,21 +111,38 @@ public class GraphPlot {
         XYDataset firstXY = new XYSeriesCollection(series);
         JFreeChart chart = createChart(firstXY);
         plot = (XYPlot) chart.getPlot();
+       /* plot.addChangeListener(new PlotChangeListener() {
+        	
+        	@Override
+        	public void plotChanged(PlotChangeEvent evt) {
+        		System.out.println("The chart has changed");
+        	}        	
+        	
+        });*/
+        plot.getDomainAxis().addChangeListener(new AxisChangeListener() {
+
+			@Override
+			public void axisChanged(AxisChangeEvent arg0) {
+				System.out.println("Domain changed");
+				
+			}
+        	
+        });
         //Image im = new ImageIcon("C:\\Users\\Public\\Pictures\\Sample Pictures\\Desert.jpg").getImage(); 
         plot.setBackgroundPaint(null);
        // plot.setBackgroundImage(im);
        // plot.getRangeAxis().setRangeAboutValue(K, K / 5);
         NumberAxis range = (NumberAxis) plot.getRangeAxis();
         range.setTickUnit(new NumberTickUnit(1));
-        range.setRange(-5, 5);
+        range.setRange(-10, 10);
         NumberAxis domain = (NumberAxis) plot.getDomainAxis();
-        domain.setRange(-2, 10);
+        domain.setRange(-10, 10);
         domain.setTickUnit(new NumberTickUnit(1));
         
         plot.setDomainGridlinesVisible(true);
         plot.setRangeGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.black);
-        plot.setDomainGridlinePaint(Color.black);
+        plot.setRangeGridlinePaint(new Color(240, 240, 240));
+        plot.setDomainGridlinePaint(new Color(240, 240, 240));
         //plot.setDomainValue(0, 50);
         ChartPanel chartPanel = new ChartPanel(chart) {
             @Override
@@ -133,4 +162,9 @@ public class GraphPlot {
         f.setLocationRelativeTo(null);
         f.setVisible(true);
 	}
+	
+	/*private class TrendZoomListener implements ChartChangeListener {
+		
+	}*/
+	
 }
