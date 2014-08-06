@@ -36,12 +36,34 @@ public class GraphPlot {
 	private static XYSeries series = new XYSeries("Test");
 	private static XYPlot plot;
 	
+	private static XYDataset xyDataset = null;
+	private static int i = 0;
+	private static Coordinate lastCoordinate;
+	
     public static void addPoint(Coordinate coordinate) {
-    	series.add(coordinate.getX(), coordinate.getY());
+    	if (xyDataset == null) {
+    		series.add(coordinate.getX(), coordinate.getY());
+        	System.out.println("In addPoint. X: " + coordinate.getX() + " Y: " + coordinate.getY());
+        	System.out.println("Size of series: " + series.getItemCount());
+        	xyDataset = new XYSeriesCollection(series);
+        	plot.setDataset(xyDataset);
+        	lastCoordinate = new Coordinate(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+    	}
+    	else {
+    		final XYSeries newSeries = new XYSeries(i);
+    		newSeries.add(lastCoordinate.getX(), lastCoordinate.getY());
+    		newSeries.add(coordinate.getX(), lastCoordinate.getY());
+    		plot.getRenderer().setSeriesPaint(0, Color.RED);
+    		XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
+    		newDataset.addSeries(newSeries);
+    		plot.setDataset(newDataset);
+    		i++;
+    	}
+    	/*series.add(coordinate.getX(), coordinate.getY());
     	System.out.println("In addPoint. X: " + coordinate.getX() + " Y: " + coordinate.getY());
     	System.out.println("Size of series: " + series.getItemCount());
-    	XYDataset xyDataset = new XYSeriesCollection(series);
-    	plot.setDataset(xyDataset);
+    	xyDataset = new XYSeriesCollection(series);
+    	plot.setDataset(xyDataset);*/
     }
     
 	private static XYDataset getDataset(int n) {
