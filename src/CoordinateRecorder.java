@@ -50,10 +50,10 @@ public class CoordinateRecorder extends Thread {
     
     double angleInDegrees;
     
-    CoordinateRecorder(JTextArea inTextArea){
+    CoordinateRecorder(JTextArea inTextArea, GraphPlot _plot){
         System.out.println("In CoordinateRecorder");
         workingText = inTextArea;
-        plot = new GraphPlot();
+        plot = _plot;
     }
     
     
@@ -63,6 +63,7 @@ public class CoordinateRecorder extends Thread {
         Character character = new Character(_character);
         anchorPoints.put(character, coordinate);
         System.out.println("New Anchor Size: " + anchorPoints.size());
+        plot.addAnchorPoint(coordinate);
     }
     
     public void atAnchor(char character) {
@@ -70,7 +71,7 @@ public class CoordinateRecorder extends Thread {
         anchorDiffX = coordinate.getX() - lastStep.getX();
         anchorDiffY = coordinate.getY() - lastStep.getY();
         System.out.println("The difference between the current and anchor point: " + anchorDiffX + " " + anchorDiffY);
-        plot.addAnchorPoint(coordinate);
+        plot.atAnchorPoint(coordinate);
        /* firstX = coordinate.getX();
         firstY = coordinate.getY();
         firstZ = coordinate.getZ();

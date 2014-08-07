@@ -21,6 +21,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,8 @@ import java.awt.Toolkit;
 import java.awt.Rectangle;
 
 public class Main {
+	
+	GraphPlot plot;
 	
 	Integer screenHeight;
 	Integer screenWidth;
@@ -85,6 +88,7 @@ public class Main {
 		saveButton = new JButton("Save to File...");
 		headingXPlus = new JButton("Heading X+");
 		JButton exitButton = new JButton("Exit");
+		final JButton showMapButton = new JButton("Hide Map");
 		
 		Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 		screenHeight = new Double(screenSize.getHeight()).intValue();
@@ -153,7 +157,8 @@ public class Main {
 		eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
 		JButton test = new JButton("Test");
         logText = new JTextArea();
-        recorder = new CoordinateRecorder(logText);
+        plot = new GraphPlot();
+        recorder = new CoordinateRecorder(logText, plot);
         AnchorPane firstPane = new AnchorPane((char)numPanes, recorder);
         firstPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 		eastPanel.add(firstPane);
@@ -166,11 +171,13 @@ public class Main {
 		/* South window set up */
 		southWindow = new JWindow(frame);
 		southWindow.setBounds(0, startSouthWindow, screenWidth, southWindowHeight);
+		
 		bottomPanel.add(startButton);
 		bottomPanel.add(markButton);
 		bottomPanel.add(endButton);
 		bottomPanel.add(saveButton);
 		bottomPanel.add(headingXPlus);
+		bottomPanel.add(showMapButton);
 		bottomPanel.add(exitButton);
 		
 		southWindow.add(bottomPanel);
@@ -181,6 +188,12 @@ public class Main {
 		JScrollPane logScroller = new JScrollPane(logText);
 		logScroller.setPreferredSize(new Dimension(windowWidth, 600));
 		westWindow.add(logScroller, BorderLayout.CENTER);
+		
+		/* * * * * * * * * * * * * * * * * * * * *
+		 * 
+		 *  BUTTON LISTENERS FOR BOTTOM PANEL
+		 * 
+		 * * * * * * * * * * * * * * * * * * * * */
 		
 		startButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -209,6 +222,19 @@ public class Main {
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				exitProgram();
+			}
+		});
+		
+		showMapButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				if (plot.getJFrame().getExtendedState() == Frame.ICONIFIED) {
+					plot.getJFrame().setExtendedState(Frame.NORMAL);
+					showMapButton.setText("Hide Map");
+				}
+				else {
+					plot.getJFrame().setExtendedState(Frame.ICONIFIED);
+					showMapButton.setText("Show Map");
+				}
 			}
 		});
 		
