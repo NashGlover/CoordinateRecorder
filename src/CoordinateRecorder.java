@@ -329,7 +329,7 @@ public class CoordinateRecorder extends Thread {
                                             	oldDistance = distance;
                                             }
                                         }
-                                        
+                                        System.out.println("After iterator");
                                         if (characterPair != null) {
                                         	workingText.append("At anchor point " + characterPair + "\n");
                                         }
@@ -367,7 +367,7 @@ public class CoordinateRecorder extends Thread {
             clientSocket.close();
             System.out.printf("Done");
         }
-        catch (Exception e) {
+        catch (IOException e) {
         	System.out.println(e.getMessage());
             System.out.println("Disconnected!");
             try {

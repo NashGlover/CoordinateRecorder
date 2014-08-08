@@ -110,11 +110,11 @@ public class AnchorPane extends javax.swing.JPanel {
     private void setButtonPressed(ActionEvent evt) {
         System.out.println("Set button presed");
         coordinate = new Coordinate(Double.parseDouble(xTextField.getText()), Double.parseDouble(yTextField.getText()), Double.parseDouble(zTextField.getText()));
-	recorder.setAnchor(coordinate, character);
+        recorder.setAnchor(coordinate, character);
         hereButton.setEnabled(true);
         xTextField.setEnabled(false);
-	yTextField.setEnabled(false);
-	zTextField.setEnabled(false);
+        yTextField.setEnabled(false);
+        zTextField.setEnabled(false);
     }
     
     // Variables declaration - do not modify                     
