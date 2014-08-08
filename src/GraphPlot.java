@@ -39,6 +39,7 @@ import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.event.PlotChangeListener;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -144,12 +145,37 @@ public class GraphPlot {
     }
     
     public static void addAnchorPoint(Coordinate coordinate) {
+    	System.out.println("In add anchor point.");
+    	if (xyDataset == null) {
+    		series.add(coordinate.getX(), coordinate.getY());
+    		series.add(0, 0);
+        	System.out.println("In addPoint. X: " + coordinate.getX() + " Y: " + coordinate.getY());
+        	System.out.println("Size of series: " + series.getItemCount());
+        	xyDataset = new XYSeriesCollection(series);
+        	plot.setDataset(xyDataset);
+        	i++;
+    	} else {
+	    	final XYSeries newSeries = new XYSeries(i);
+	    	newSeries.add(coordinate.getX(), coordinate.getY());
+	    	XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
+	    	newDataset.addSeries(newSeries);
+	    	plot.setDataset(newDataset);
+	    	i++;
+    	}
+    	//XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+    	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+    	renderer.setSeriesLinesVisible(i-1, false);
+    	renderer.setSeriesShapesVisible(i-1, true);
+    	plot.setRenderer(renderer);
+    }
+    
+    public static void atAnchorPoint(Coordinate coordinate) {
     	lastCoordinate = coordinate;
     }
     
 	private static XYDataset getDataset(int n) {
 		System.out.println("Get data set");
-        //final XYSeries series = new XYSeries("Temp (K°)");
+        //final XYSeries series = new XYSeries("Temp (Kï¿½)");
         double temperature;
        /* for (int length = 0; length < N; length++) {
             temperature = K + n * random.nextGaussian();
@@ -191,7 +217,7 @@ public class GraphPlot {
         for (int i = 0; i <= 10; i++) {
             list.add(getDataset(i));
         }*/
-        series.add(0, 0);
+        //series.add(0, 0);
         XYDataset firstXY = new XYSeriesCollection(series);
         JFreeChart chart = createChart(firstXY);
         plot = (XYPlot) chart.getPlot();
