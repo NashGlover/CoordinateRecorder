@@ -329,7 +329,7 @@ public class GraphPlot {
         
         chartPanel.setPopupMenu(null);
         chartPanel.setMouseZoomable(false);
-        MouseListeners listeners = new MouseListeners();
+        GraphMouseListeners listeners = new GraphMouseListeners();
         chartPanel.addMouseMotionListener(listeners);
         chartPanel.addMouseListener(listeners);
         /*chartPanel.addMouseMotionListener(new MouseAdapter() {
@@ -511,11 +511,19 @@ public class GraphPlot {
 		domain.setRange(domain.getLowerBound()+lengthDelta, domain.getUpperBound()+lengthDelta);
 	}
 	
+	public void changeYAxis(int delta, double height) {
+		Double length = range.getRange().getLength();
+		Double ratio = delta/height;
+		Double lengthDelta = ratio*length;
+		
+		range.setRange(range.getLowerBound()+lengthDelta, range.getUpperBound()+lengthDelta);
+	}
+	
 	/*private class TrendZoomListener implements ChartChangeListener {
 		
 	}*/
 	
-	private class MouseListeners extends MouseAdapter {
+	private class GraphMouseListeners extends MouseAdapter {
 		
 		int startX;
     	int startY;
@@ -542,7 +550,8 @@ public class GraphPlot {
         	
         	System.out.println("startX - currX = " + (startX-e.getX()));
         	
-        	if (!dragging && Math.abs(startX-e.getX()) > 10)
+        	//if (!dragging && Math.abs(startX-e.getX()) > 10)
+        	if (!dragging && (Math.sqrt(Math.pow(currX-startX, 2) + Math.pow(currY-startY, 2)) > 10))
         	{
         		dragging = true;
         		lastX = startX;
@@ -552,12 +561,14 @@ public class GraphPlot {
             	super.mouseDragged(e);
             	int mouseX = e.getX();
             	int mouseY = e.getY();
+            	System.out.println("New X: " + mouseX + " New Y: " + mouseY);
                 Rectangle2D plotRectangle = chartPanel.getChartRenderingInfo().getPlotInfo().getDataArea();
                 if (mouseX >= plotRectangle.getX() && mouseX <= (plotRectangle.getX() + plotRectangle.getWidth())) {
                 	System.out.println("Dragging on plot area");
                 }
                 
                 changeXAxis(lastX-currX, plotRectangle.getWidth());
+                changeYAxis(lastY-currY, plotRectangle.getHeight());
             }
         	
         	lastX = currX;
