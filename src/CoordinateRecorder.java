@@ -68,8 +68,12 @@ public class CoordinateRecorder extends Thread {
     
     public void atAnchor(char character) {
         Coordinate coordinate = (Coordinate)anchorPoints.get(character);
-        anchorDiffX = coordinate.getX() - lastStep.getX();
-        anchorDiffY = coordinate.getY() - lastStep.getY();
+        anchorDiffX = anchorDiffX + (coordinate.getX() - lastStep.getX());
+        anchorDiffY = anchorDiffY + (coordinate.getY() - lastStep.getY());
+        
+        workingText.append("AnchorDiffX: " + anchorDiffX + "\n");
+        workingText.append("AnchorDiffY: " + anchorDiffY + "\n");
+        
         System.out.println("The difference between the current and anchor point: " + anchorDiffX + " " + anchorDiffY);
         plot.atAnchorPoint(coordinate);
        /* firstX = coordinate.getX();

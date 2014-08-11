@@ -35,6 +35,7 @@ import org.jfree.chart.ChartMouseListener;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
 import org.jfree.chart.axis.ValueAxis;
@@ -52,6 +53,7 @@ import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.util.ShapeUtilities;
 
 public class GraphPlot {
 	
@@ -77,6 +79,8 @@ public class GraphPlot {
 	private static int numAnchorPoints = 0;
 	
 	private static ChartPanel chartPanel;
+	
+	private static char anchorChar = 65;
 	
 	public JFrame getJFrame() {
 		return this.f;
@@ -158,6 +162,7 @@ public class GraphPlot {
 	
 	public void updateAxis() {
 		range = (NumberAxis) plot.getRangeAxis();
+		domain = (NumberAxis) plot.getDomainAxis();
 	}
 	
     public static void addPoint(Coordinate coordinate) {
@@ -178,6 +183,7 @@ public class GraphPlot {
         	}
         	plot.getRenderer().setSeriesPaint(i, Color.RED);
         	plot.getRenderer().setSeriesShape(i, new Ellipse2D.Double(-1.5, -1.5, 3, 3));
+        	//plot.getRenderer().setSeriesShape(i, ShapeUtilities.createDiagonalCross(1, 1));
     	}
     	else {
     		final XYSeries newSeries = new XYSeries(i);
@@ -225,8 +231,10 @@ public class GraphPlot {
     	System.out.println("numAnchorPoints: " + numAnchorPoints);
     	renderer.setSeriesPaint(i-1, colorList.get(numAnchorPoints));
     	System.out.println("After series paint");
-    	renderer.setSeriesShape(i-1, new Ellipse2D.Double(-4, -4, 8, 8));
+    	//renderer.setSeriesShape(i-1, new Ellipse2D.Double(-4, -4, 8, 8));
+    	renderer.setSeriesShape(i-1, ShapeUtilities.createDiagonalCross(3, .5f));
     	plot.setRenderer(renderer);
+    	plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+.5, coordinate.getY()+.5));
        	numAnchorPoints++;
     }
     
@@ -313,6 +321,7 @@ public class GraphPlot {
         domain.setRange(-10, 10);
         domain.setTickUnit(new NumberTickUnit(1));
         
+        
         plot.setDomainGridlinesVisible(true);
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(new Color(240, 240, 240));
@@ -393,11 +402,8 @@ public class GraphPlot {
 
 			@Override
 			public void plotChanged(PlotChangeEvent arg0) {
-				System.out.println("The plot has changed.");
 				Rectangle2D plotRectangle = chartPanel.getChartRenderingInfo().getPlotInfo().getDataArea();
-				System.out.println("Plot starting X: " + plotRectangle.getX());
 				updateAxis();
-				
 			}
         	
         });
@@ -516,7 +522,7 @@ public class GraphPlot {
 		Double ratio = delta/height;
 		Double lengthDelta = ratio*length;
 		
-		range.setRange(range.getLowerBound()+lengthDelta, range.getUpperBound()+lengthDelta);
+		range.setRange(range.getLowerBound()-lengthDelta, range.getUpperBound()-lengthDelta);
 	}
 	
 	/*private class TrendZoomListener implements ChartChangeListener {
