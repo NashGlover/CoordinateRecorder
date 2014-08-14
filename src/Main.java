@@ -1,6 +1,7 @@
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -28,8 +29,17 @@ import java.awt.event.ActionEvent;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.Rectangle;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main {
+	
+	File anchorFile;
+	ArrayList<AnchorPane> anchorList = new ArrayList<AnchorPane>();
 	
 	GraphPlot plot;
 	
@@ -38,7 +48,7 @@ public class Main {
 	Integer startHeight;
 	Integer windowWidth;
 	Integer startSouthWindow;
-    int numPanes = 65;
+    int numPanes = 64;
 	
 	JTextArea logText;
 	
@@ -128,9 +138,22 @@ public class Main {
 		anchorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		anchorLabel.setVerticalAlignment(SwingConstants.BOTTOM);
 		addAnchorButton = new JButton("Add");
+		JButton loadAnchorButton = new JButton("Load Anchors");
 		northRightPanel.setLayout(new BorderLayout());
 		northRightPanel.add(anchorLabel, BorderLayout.CENTER);
-		northRightPanel.add(addAnchorButton, BorderLayout.SOUTH);
+		JPanel anchorButtonPanel = new JPanel();
+		anchorButtonPanel.setLayout(new BorderLayout());
+		anchorButtonPanel.add(addAnchorButton, BorderLayout.CENTER);
+		anchorButtonPanel.add(loadAnchorButton, BorderLayout.SOUTH);
+		
+		loadAnchorButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				loadAnchorPoints();
+			}
+		});
+		
+		northRightPanel.add(anchorButtonPanel, BorderLayout.SOUTH);
 		northRightPanel.setPreferredSize(new Dimension(windowWidth, southWindowHeight+40));
 		northRightPanel.setMaximumSize(new Dimension(windowWidth, southWindowHeight+40));
 		
@@ -159,8 +182,10 @@ public class Main {
         logText = new JTextArea();
         plot = new GraphPlot();
         recorder = new CoordinateRecorder(logText, plot);
+        numPanes++;
         AnchorPane firstPane = new AnchorPane((char)numPanes, recorder);
         firstPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+        anchorList.add(firstPane);
 		eastPanel.add(firstPane);
 		//eastPanel.add(test);
 		eastWindow.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK));
@@ -219,6 +244,12 @@ public class Main {
 			}
 		});
 		
+		saveButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				plot.saveChart();
+			}
+		});
+		
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				exitProgram();
@@ -261,17 +292,80 @@ public class Main {
 	
 	/* Listen for add anchor button click */
 	private void addAnchorButtonActionPerformed(ActionEvent evt) {
-                numPanes++;
+			addAnchor();
+		/*   numPanes++;
                 System.out.println("Add new anchor point");
                 AnchorPane newAnchorPane = new AnchorPane((char)numPanes, recorder);
                 newAnchorPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+                eastPanel.add(newAnchorPane);
+                anchorList.add(newAnchorPane);
+                eastWindow.revalidate();*/
+	}
+	
+	private void addAnchor() {
+		numPanes++;
+		AnchorPane newAnchorPane = new AnchorPane((char)numPanes, recorder);
+		newAnchorPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 		eastPanel.add(newAnchorPane);
-                eastWindow.revalidate();
+		anchorList.add(newAnchorPane);
+		eastWindow.revalidate();
+	}
+	
+	private void addAnchor(Coordinate _coordinate) {
+		Coordinate inCoordinate = _coordinate;
+		System.out.println("In add Anchor");
+		numPanes++;
+		AnchorPane newAnchorPane = new AnchorPane((char)numPanes, recorder, inCoordinate);
+		newAnchorPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		eastPanel.add(newAnchorPane);
+		anchorList.add(newAnchorPane);
+		eastWindow.revalidate();
 	}
 	
 	/* Listen for heading X Plus button click */
 	private void headingXPlusActionPerformed(ActionEvent evt) {
 		recorder.heading();
+	}
+	
+	public void loadAnchorPoints() {
+		JFileChooser anchorFileChooser = new JFileChooser();
+		int returnVal = anchorFileChooser.showOpenDialog(frame);
+		
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			anchorFile = anchorFileChooser.getSelectedFile();
+			System.out.println("Selected");
+			
+			for (AnchorPane existingPane : anchorList) {
+				numPanes--;
+				System.out.println("Found an anchor pane");
+				eastPanel.remove(existingPane);
+				eastPanel.revalidate();
+				eastPanel.repaint();
+			}
+			
+			/* Create the new panes from the text file */
+			
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(anchorFile));
+				String line;
+				while ((line = br.readLine()) != null) {
+					System.out.println("New Point");
+					if (line.length() == 1) {
+						Double x = Double.parseDouble(br.readLine());
+						System.out.println("x: " + x);
+						Double y = Double.parseDouble(br.readLine());
+						Double z = Double.parseDouble(br.readLine());
+						Coordinate coordinateForAnchor = new Coordinate(x, y, z);
+						addAnchor(coordinateForAnchor);
+					}
+				}
+			} catch(FileNotFoundException e) {
+				System.out.println(e.getMessage());
+			} catch (IOException ioE) {
+				System.out.println(ioE);
+			}
+		}
+		
 	}
 	
 	public static void main (String args[]) {

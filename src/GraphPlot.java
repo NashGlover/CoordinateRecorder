@@ -13,6 +13,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.MouseWheelEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -81,6 +85,7 @@ public class GraphPlot {
 	private static ChartPanel chartPanel;
 	
 	private static char anchorChar = 65;
+	private static JFreeChart chart;
 	
 	public JFrame getJFrame() {
 		return this.f;
@@ -232,7 +237,8 @@ public class GraphPlot {
     	renderer.setSeriesPaint(i-1, colorList.get(numAnchorPoints));
     	System.out.println("After series paint");
     	//renderer.setSeriesShape(i-1, new Ellipse2D.Double(-4, -4, 8, 8));
-    	renderer.setSeriesShape(i-1, ShapeUtilities.createDiagonalCross(3, .5f));
+    	//renderer.setSeriesShape(i-1, ShapeUtilities.rotateShape(ShapeUtilities.createDiagonalCross(100, .1f), 40.055, 0, 0));
+    	renderer.setSeriesShape(i-1, ShapeUtilities.createRegularCross(5, .5f));
     	plot.setRenderer(renderer);
     	plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+.5, coordinate.getY()+.5));
        	numAnchorPoints++;
@@ -290,7 +296,7 @@ public class GraphPlot {
         }*/
         //series.add(0, 0);
         XYDataset firstXY = new XYSeriesCollection(series);
-        JFreeChart chart = createChart(firstXY);
+        chart = createChart(firstXY);
         plot = (XYPlot) chart.getPlot();
         final XYPlot finalPlot = plot;
        /* plot.addChangeListener(new PlotChangeListener() {
@@ -341,6 +347,19 @@ public class GraphPlot {
         GraphMouseListeners listeners = new GraphMouseListeners();
         chartPanel.addMouseMotionListener(listeners);
         chartPanel.addMouseListener(listeners);
+        chartPanel.addMouseWheelListener(new MouseWheelListener() {
+        	@Override
+        	public void mouseWheelMoved(MouseWheelEvent e) {
+        		if (e.getWheelRotation() < 0) {
+        			zoomIn();
+        		}
+        		else {
+        			zoomOut();
+        		}
+        	}
+        	
+        });
+        
         /*chartPanel.addMouseMotionListener(new MouseAdapter() {
 
         	int startX;
@@ -528,6 +547,17 @@ public class GraphPlot {
 	/*private class TrendZoomListener implements ChartChangeListener {
 		
 	}*/
+	
+	//public void 
+	
+	public void saveChart() {
+		try {
+			System.out.println("In save chart");
+			ChartUtilities.saveChartAsPNG(new File("chart.png"), chart, 3000, 1688);
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 	
 	private class GraphMouseListeners extends MouseAdapter {
 		

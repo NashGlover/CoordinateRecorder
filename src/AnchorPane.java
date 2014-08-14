@@ -25,7 +25,18 @@ public class AnchorPane extends javax.swing.JPanel {
         System.out.println("Character: " + character);
         initComponents();
     }
-
+    
+    public AnchorPane(char _character, CoordinateRecorder _recorder, Coordinate _coordinate) {
+    	character = _character;
+    	recorder = _recorder;
+    	System.out.println("In achor pane constructor");
+    	coordinate = _coordinate;
+    	initComponents();
+    	xTextField.setText(String.valueOf(coordinate.getX()));
+    	yTextField.setText(String.valueOf(coordinate.getY()));
+    	zTextField.setText(String.valueOf(coordinate.getZ()));
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -36,6 +47,9 @@ public class AnchorPane extends javax.swing.JPanel {
     private void initComponents() {
 
         letterLabel = new JLabel(Character.toString(character));
+        if (character == 'A') {
+        	loadButton = new JButton("Load");
+        }
         xTextField = new JTextField();
         yTextField = new JTextField();
         zTextField = new JTextField();
@@ -107,9 +121,22 @@ public class AnchorPane extends javax.swing.JPanel {
         recorder.atAnchor(character);
     }                                        
 
+    private void setCoordinate(Coordinate _coordinate) {
+    	coordinate = _coordinate;
+    }
+    
     private void setButtonPressed(ActionEvent evt) {
-        System.out.println("Set button presed");
+    	System.out.println("Set Button Pressed");
+        setAnchor();
+        setButton.setEnabled(false);
+    }
+    
+    private void setAnchor() {
+    	System.out.println("Set button presed");
+    	System.out.println(xTextField.getText());
         coordinate = new Coordinate(Double.parseDouble(xTextField.getText()), Double.parseDouble(yTextField.getText()), Double.parseDouble(zTextField.getText()));
+        System.out.println(character);
+        System.out.println("After new coordinate");
         recorder.setAnchor(coordinate, character);
         hereButton.setEnabled(true);
         xTextField.setEnabled(false);
@@ -120,6 +147,7 @@ public class AnchorPane extends javax.swing.JPanel {
     // Variables declaration - do not modify                     
     private JButton setButton;
     private JButton hereButton;
+    private JButton loadButton;
     private JLabel letterLabel;
     private JTextField xTextField;
     private JTextField yTextField;

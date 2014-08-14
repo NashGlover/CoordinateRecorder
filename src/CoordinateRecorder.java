@@ -15,7 +15,7 @@ import java.util.Date;
 * @author Administrator
 */
 public class CoordinateRecorder extends Thread {
-    
+	
 	int steps = 0;
     Map<Character, Coordinate> anchorPoints = new HashMap<Character, Coordinate>();
     String distanceStart = "Distance from beginning to end: ";
@@ -58,6 +58,7 @@ public class CoordinateRecorder extends Thread {
     
     
     public void setAnchor (Coordinate _coordinate, char _character) {
+    	System.out.println("In coordinate recorder");
         System.out.println("In set anchor");
         Coordinate coordinate = _coordinate;
         Character character = new Character(_character);
