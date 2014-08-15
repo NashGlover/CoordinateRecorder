@@ -171,8 +171,9 @@ public class GraphPlot {
 	}
 	
     public static void addPoint(Coordinate coordinate) {
-    	System.out.println("In add point");
+    	// Origin point
     	if (numPoints == 0) {
+    		System.out.println("Origin point");
     		final XYSeries newSeries = new XYSeries(i);
     		newSeries.add(coordinate.getX(), coordinate.getY());
         	System.out.println("In addPoint. X: " + coordinate.getX() + " Y: " + coordinate.getY());
@@ -186,8 +187,10 @@ public class GraphPlot {
         		newDataset.addSeries(newSeries);
         		plot.setDataset(newDataset);
         	}
-        	plot.getRenderer().setSeriesPaint(i, Color.RED);
-        	plot.getRenderer().setSeriesShape(i, new Ellipse2D.Double(-1.5, -1.5, 3, 3));
+        	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        	plot.getRenderer().setSeriesPaint(i, Color.BLUE);
+        	plot.getRenderer().setSeriesShape(i, new Ellipse2D.Double(-3.5, -3.5, 7, 7));
+        	renderer.setSeriesShapesVisible(i, true);
         	//plot.getRenderer().setSeriesShape(i, ShapeUtilities.createDiagonalCross(1, 1));
     	}
     	else {
@@ -195,7 +198,7 @@ public class GraphPlot {
     		newSeries.add(lastCoordinate.getX(), lastCoordinate.getY());
     		newSeries.add(coordinate.getX(), coordinate.getY());
     		plot.getRenderer().setSeriesPaint(i, Color.RED);
-    		plot.getRenderer().setSeriesPaint(i+1, Color.RED);	
+    		//plot.getRenderer().setSeriesPaint(i+1, Color.RED);	
     		XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
     		newDataset.addSeries(newSeries);
     		plot.setDataset(newDataset);
