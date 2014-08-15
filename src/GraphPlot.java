@@ -330,8 +330,8 @@ public class GraphPlot {
         
         plot.setDomainGridlinesVisible(true);
         plot.setRangeGridlinesVisible(true);
-        plot.setRangeGridlinePaint(new Color(240, 240, 240));
-        plot.setDomainGridlinePaint(new Color(240, 240, 240));
+        plot.setRangeGridlinePaint(new Color(150, 150, 150));
+        plot.setDomainGridlinePaint(new Color(150, 150, 150));
         //plot.setDomainValue(0, 50);
         chartPanel = new ChartPanel(chart) {
             
@@ -352,6 +352,7 @@ public class GraphPlot {
         	public void mouseWheelMoved(MouseWheelEvent e) {
         		if (e.getWheelRotation() < 0) {
         			zoomIn();
+        			System.out.println("Mouse wheel X: " + e.getX());
         		}
         		else {
         			zoomOut();

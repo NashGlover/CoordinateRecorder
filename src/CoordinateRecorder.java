@@ -193,8 +193,8 @@ public class CoordinateRecorder extends Thread {
                                         y = buffer.getDouble(40);
                                         z = buffer.getDouble(48);
                                         realCoordinate = new Coordinate(x, y, z);
-                                        workingText.append("Real x: " + x + "\n");
-                                        workingText.append("Real y: " + y + "\n");
+                                        //workingText.append("Real x: " + x + "\n");
+                                        //workingText.append("Real y: " + y + "\n");
                                         
                                         if (first)
                                         {
@@ -209,7 +209,7 @@ public class CoordinateRecorder extends Thread {
                                         if (heading) {
 	                                        if (steps == 0) {
 	                                        	realOrigin = new Coordinate(x, y, z);
-	                                        	workingText.append("Real origin%n");
+	                                        	//workingText.append("Real origin%n");
 	                                        	x = x - differenceX;
 	                                            y = y - differenceY;
 	                                            z = z - differenceZ;
@@ -218,18 +218,18 @@ public class CoordinateRecorder extends Thread {
 	                                        	x = x - differenceX;
 	                                            y = y - differenceY;
 	                                            z = z - differenceZ;
-	                                            workingText.append("x: " + x + "\n");
-	                                            workingText.append("y: " + y + "\n");
-	                                            workingText.append("lastStep X: " + lastStep.getX() + "\n");
-	                                            workingText.append("lastStep Y: " + lastStep.getY() + "\n");
+	                                            //workingText.append("x: " + x + "\n");
+	                                            //workingText.append("y: " + y + "\n");
+	                                            //workingText.append("lastStep X: " + lastStep.getX() + "\n");
+	                                            //workingText.append("lastStep Y: " + lastStep.getY() + "\n");
 	                                            double deltaX = x;
 	                                            double deltaY = y;
 	                                            
-	                                            workingText.append("deltaX: " + deltaX + "\n");
-	                                            workingText.append("deltaY: " + deltaY + "\n");
+	                                            //workingText.append("deltaX: " + deltaX + "\n");
+	                                            //workingText.append("deltaY: " + deltaY + "\n");
 	                                            
 	                                            angleInDegrees = Math.atan2(deltaY, deltaX) * 180/Math.PI;
-	                                            workingText.append("Angle in degrees: " + angleInDegrees + "/n");
+	                                            //workingText.append("Angle in degrees: " + angleInDegrees + "/n");
 	                                        	angleInDegrees = -angleInDegrees;
 	                                        	double tempX, tempY;
 	                                        	
@@ -240,10 +240,10 @@ public class CoordinateRecorder extends Thread {
 	                                            x = x*Math.cos(Math.toRadians(angleInDegrees)) - y*Math.sin(Math.toRadians(angleInDegrees));
 	                                    		y = tempY;
 	                                            
-	                                    		workingText.append("New y: " + y + "/n");
+	                                    		//workingText.append("New y: " + y + "/n");
 	                                    		System.out.println("y: " + y);
 	                                    		
-	                                            workingText.append("First step%n");
+	                                            //workingText.append("First step%n");
 	                                        	firstStep = new Coordinate(x, y, z);
 	                                        	//x = lastStep.getX() + distance(firstStep.getX(), lastStep.getX(), firstStep.getY(), lastStep.getY());
 	                                        	//y = lastStep.getY();
