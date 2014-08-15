@@ -246,7 +246,8 @@ public class Main {
 		
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				plot.saveChart();
+				plot.saveChart("chart.png");
+				recorder.getAnchorlessPlot().saveChart("anchorlessChart.png");
 			}
 		});
 		

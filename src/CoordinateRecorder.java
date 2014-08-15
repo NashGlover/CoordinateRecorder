@@ -30,6 +30,7 @@ public class CoordinateRecorder extends Thread {
     private double beginX = 0, beginY = 0, beginZ = 0;
     private double differenceX = 0, differenceY = 0, differenceZ = 0;
     private double anchorX = 0, anchorY = 0;
+    private double anchorlessX = 0, anchorlessY = 0;
     
     double slope;
     double vector;
@@ -46,6 +47,7 @@ public class CoordinateRecorder extends Thread {
     Boolean first = true;
     Socket clientSocket;
     GraphPlot plot;
+    GraphPlot anchorlessPlot = new GraphPlot();
     Boolean heading = false;
     
     double angleInDegrees;
@@ -213,6 +215,9 @@ public class CoordinateRecorder extends Thread {
 	                                        	x = x - differenceX;
 	                                            y = y - differenceY;
 	                                            z = z - differenceZ;
+	                                            
+	                                            anchorlessX = x;
+	                                            anchorlessY = y;
 	                                        }
 	                                        else if (steps == 1) {
 	                                        	x = x - differenceX;
@@ -245,6 +250,9 @@ public class CoordinateRecorder extends Thread {
 	                                    		
 	                                            //workingText.append("First step%n");
 	                                        	firstStep = new Coordinate(x, y, z);
+	                                        	
+	                                        	anchorlessX = x;
+	                                        	anchorlessY = y;
 	                                        	//x = lastStep.getX() + distance(firstStep.getX(), lastStep.getX(), firstStep.getY(), lastStep.getY());
 	                                        	//y = lastStep.getY();
 	                                        }
@@ -297,6 +305,9 @@ public class CoordinateRecorder extends Thread {
 	                                        	tempX = x*Math.cos(Math.toRadians(angleInDegrees)) - y*Math.sin(Math.toRadians(angleInDegrees));
 	                                        	tempY = x*Math.sin(Math.toRadians(angleInDegrees)) + y*Math.cos(Math.toRadians(angleInDegrees));
 	                                        	
+	                                        	anchorlessX = tempX;
+	                                        	anchorlessY = tempY;
+	                                        	
 	                                        	tempX = tempX + anchorDiffX;
 	                                        	tempY = tempY + anchorDiffY;
 	                                        	/*tempX = x - differenceX;
@@ -310,6 +321,9 @@ public class CoordinateRecorder extends Thread {
                                         	x = x - differenceX;
 	                                        y = y - differenceY;
 	                                        z = z - differenceZ;
+	                                        
+	                                        anchorlessX = x;
+	                                        anchorlessY = y;
                                         }
                                         
                                         
@@ -341,6 +355,8 @@ public class CoordinateRecorder extends Thread {
                                         
                                         Coordinate coordinate = new Coordinate(x, y, z, timestamp);
                                         aionavCoordinates.add(coordinate);
+                                        System.out.println("Anchorless X: " + anchorlessX);
+                                        anchorlessPlot.addPoint(new Coordinate(anchorlessX, anchorlessY, z));
                                         plot.addPoint(coordinate);
                                         
                                         currLine = String.format("Step: " + steps + "%nTime: " + dateString + "%nx: %.3f%ny: %.3f%nz: %.3f%n%n", x, y, z);
@@ -383,6 +399,10 @@ public class CoordinateRecorder extends Thread {
                 System.out.println("Error in closing socket");
             }
         }
+    }
+    
+    public GraphPlot getAnchorlessPlot() {
+    	return anchorlessPlot;
     }
     
     private double distance(double x1, double x2, double y1, double y2) {

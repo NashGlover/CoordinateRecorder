@@ -61,31 +61,34 @@ import org.jfree.util.ShapeUtilities;
 
 public class GraphPlot {
 	
-//	private static final int N = 25;
-//    private static final double K = 273.15;
-    private static final Random random = new Random();
-	private static XYSeries series = new XYSeries("Test");
-	private static XYPlot plot;
+//	private  final int N = 25;
+//    private  final double K = 273.15;
+    private  final Random random = new Random();
+	private  XYSeries series = new XYSeries("Test");
+	private  XYPlot plot;
 	
-	private static NumberAxis range;
-	private static NumberAxis domain;
+	private  NumberAxis range;
+	private  NumberAxis domain;
 	
-	private static XYDataset xyDataset = null;
-	private static int i = 0;
-	private static Coordinate lastCoordinate;
+	private  XYDataset xyDataset = null;
+	private int i = 0;
+	private  Coordinate lastCoordinate;
 
 	private Stack<Double> zoomInStack;
 	private Stack<Double> zoomOutStack;
-	private static ArrayList<Color> colorList;
+	private  ArrayList<Color> colorList;
 	private JFrame f;
 	
-	private static int numPoints = 0;
-	private static int numAnchorPoints = 0;
+	private  int numPoints = 0;
+	private  int numAnchorPoints = 0;
 	
-	private static ChartPanel chartPanel;
+	private  double labelWidth;
+	private  double labelHeight;
 	
-	private static char anchorChar = 65;
-	private static JFreeChart chart;
+	private  ChartPanel chartPanel;
+	
+	private  char anchorChar = 65;
+	private  JFreeChart chart;
 	
 	public JFrame getJFrame() {
 		return this.f;
@@ -170,8 +173,11 @@ public class GraphPlot {
 		domain = (NumberAxis) plot.getDomainAxis();
 	}
 	
-    public static void addPoint(Coordinate coordinate) {
+    public  void addPoint(Coordinate coordinate) {
     	// Origin point
+    	System.out.println("Coordinate x in addPoint: " + coordinate.getX());
+    	System.out.println("In add point");
+    	System.out.println(numPoints);
     	if (numPoints == 0) {
     		System.out.println("Origin point");
     		final XYSeries newSeries = new XYSeries(i);
@@ -213,7 +219,7 @@ public class GraphPlot {
     	i++;
     }
     
-    public static void addAnchorPoint(Coordinate coordinate) {
+    public  void addAnchorPoint(Coordinate coordinate) {
     	System.out.println("In add anchor point.");
     	if (xyDataset == null) {
     		final XYSeries newSeries = new XYSeries(i);
@@ -243,15 +249,16 @@ public class GraphPlot {
     	//renderer.setSeriesShape(i-1, ShapeUtilities.rotateShape(ShapeUtilities.createDiagonalCross(100, .1f), 40.055, 0, 0));
     	renderer.setSeriesShape(i-1, ShapeUtilities.createRegularCross(5, .5f));
     	plot.setRenderer(renderer);
-    	plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+.5, coordinate.getY()+.5));
+    	//plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+.5, coordinate.getY()+.5));
+    	plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+computePixelWidth(10), coordinate.getY()+computePixelHeight(10)));
        	numAnchorPoints++;
     }
     
-    public static void atAnchorPoint(Coordinate coordinate) {
+    public  void atAnchorPoint(Coordinate coordinate) {
     	lastCoordinate = coordinate;
     }
     
-	private static XYDataset getDataset(int n) {
+	private  XYDataset getDataset(int n) {
 		System.out.println("Get data set");
         //final XYSeries series = new XYSeries("Temp (K�)");
         double temperature;
@@ -262,7 +269,7 @@ public class GraphPlot {
         return new XYSeriesCollection(series);
     }
 	
-    private static JFreeChart createChart(final XYDataset dataset) {
+    private  JFreeChart createChart(final XYDataset dataset) {
         JFreeChart chart = ChartFactory.createXYLineChart(
             "Map", "X", "Y", dataset,
             PlotOrientation.VERTICAL, false, false, false);
@@ -531,6 +538,22 @@ public class GraphPlot {
 	
 	public XYPlot getPlot() {return plot;}
 	
+	private  double computePixelWidth(double width) {
+		Rectangle2D plotRectangle = chartPanel.getChartRenderingInfo().getPlotInfo().getDataArea();
+		
+		double plotWidth = plotRectangle.getWidth();
+		double domainRange = domain.getRange().getLength();
+		return (width*domainRange/plotWidth);
+	}
+	
+	private  double computePixelHeight(double height) {
+		Rectangle2D plotRectangle = chartPanel.getChartRenderingInfo().getPlotInfo().getDataArea();
+		
+		double plotHeight = plotRectangle.getHeight();
+		double rangeRange = range.getRange().getLength();
+		return (height*rangeRange/plotHeight);
+	}
+	
 	public void changeXAxis (int delta, double width) {
 		System.out.println("Width: " + width);
 		Double length = domain.getRange().getLength();
@@ -554,10 +577,10 @@ public class GraphPlot {
 	
 	//public void 
 	
-	public void saveChart() {
+	public void saveChart(String fileName) {
 		try {
 			System.out.println("In save chart");
-			ChartUtilities.saveChartAsPNG(new File("chart.png"), chart, 3000, 1688);
+			ChartUtilities.saveChartAsPNG(new File(fileName), chart, 3000, 1688);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
