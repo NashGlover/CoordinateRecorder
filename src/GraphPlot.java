@@ -71,16 +71,19 @@ public class GraphPlot {
 	private  NumberAxis domain;
 	
 	private  XYDataset xyDataset = null;
+	private XYDataset anchorlessXYDataset = null;
 	private int i = 0;
 	private  Coordinate lastCoordinate;
+	private Coordinate anchorlessLastCoordinate;
 
 	private Stack<Double> zoomInStack;
 	private Stack<Double> zoomOutStack;
 	private  ArrayList<Color> colorList;
 	private JFrame f;
 	
-	private  int numPoints = 0;
-	private  int numAnchorPoints = 0;
+	private int numPoints = 0;
+	private int numAnchorPoints = 0;
+	private int numAnchorlessPoints = 0;
 	
 	private  double labelWidth;
 	private  double labelHeight;
@@ -186,16 +189,16 @@ public class GraphPlot {
         	System.out.println("Size of series: " + series.getItemCount());
         	if (xyDataset == null) {
         		xyDataset = new XYSeriesCollection(newSeries);
-        		plot.setDataset(xyDataset);
+        		plot.setDataset(0, xyDataset);
         	}
         	else{
         		XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
         		newDataset.addSeries(newSeries);
-        		plot.setDataset(newDataset);
+        		plot.setDataset(0, newDataset);
         	}
-        	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
-        	plot.getRenderer().setSeriesPaint(i, Color.BLUE);
-        	plot.getRenderer().setSeriesShape(i, new Ellipse2D.Double(-3.5, -3.5, 7, 7));
+        	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer(0);
+        	plot.getRenderer(0).setSeriesPaint(i, Color.BLUE);
+        	plot.getRenderer(0).setSeriesShape(i, new Ellipse2D.Double(-3.5, -3.5, 7, 7));
         	renderer.setSeriesShapesVisible(i, true);
         	//plot.getRenderer().setSeriesShape(i, ShapeUtilities.createDiagonalCross(1, 1));
     	}
@@ -203,11 +206,11 @@ public class GraphPlot {
     		final XYSeries newSeries = new XYSeries(i);
     		newSeries.add(lastCoordinate.getX(), lastCoordinate.getY());
     		newSeries.add(coordinate.getX(), coordinate.getY());
-    		plot.getRenderer().setSeriesPaint(i, Color.RED);
+    		plot.getRenderer(0).setSeriesPaint(i, Color.RED);
     		//plot.getRenderer().setSeriesPaint(i+1, Color.RED);	
     		XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
     		newDataset.addSeries(newSeries);
-    		plot.setDataset(newDataset);
+    		plot.setDataset(0, newDataset);
     	}
     	/*series.add(coordinate.getX(), coordinate.getY());
     	System.out.println("In addPoint. X: " + coordinate.getX() + " Y: " + coordinate.getY());
@@ -219,6 +222,53 @@ public class GraphPlot {
     	i++;
     }
     
+    public void addAnchorlessPoint(Coordinate coordinate) {
+    	System.out.println("In addAnchorlessPoint");
+    	if (numAnchorlessPoints == 0) {
+    		System.out.println("Origin point");
+    		final XYSeries newSeries = new XYSeries(numAnchorlessPoints);
+    		newSeries.add(coordinate.getX(), coordinate.getY());
+        	System.out.println("In addPoint. X: " + coordinate.getX() + " Y: " + coordinate.getY());
+        	System.out.println("Size of series: " + series.getItemCount());
+        	if (anchorlessXYDataset == null) {
+        		System.out.println("AnchorlessXYDataset == null");
+        		anchorlessXYDataset = new XYSeriesCollection(newSeries);
+        		XYLineAndShapeRenderer anchorlessRenderer = new XYLineAndShapeRenderer();
+        		anchorlessRenderer.setBaseShapesVisible(false);
+        		anchorlessRenderer.setBaseLinesVisible(true);
+        		plot.setRenderer(1, anchorlessRenderer);
+        		plot.setDataset(1, anchorlessXYDataset);
+        	}
+        	else{
+        		XYSeriesCollection newDataset = (XYSeriesCollection) anchorlessXYDataset;
+        		newDataset.addSeries(newSeries);
+        		plot.setDataset(1, newDataset);
+        	}
+        	System.out.println("Anchorless dataset series number " + anchorlessXYDataset.getSeriesCount());
+    	}
+    	else {
+    		final XYSeries newSeries = new XYSeries(numAnchorlessPoints);
+    		newSeries.add(anchorlessLastCoordinate.getX(), anchorlessLastCoordinate.getY());
+    		newSeries.add(coordinate.getX(), coordinate.getY());
+    		//plot.getRenderer().setSeriesPaint(numAnchorlessPoints, Color.RED);	
+    		XYSeriesCollection newDataset = (XYSeriesCollection) anchorlessXYDataset;
+    		newDataset.addSeries(newSeries);
+    		plot.setDataset(1, newDataset);
+    	}
+    	
+    	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer(1);
+    	System.out.println("After the renderer");
+    	plot.getRenderer(1).setSeriesPaint(numAnchorlessPoints, Color.BLUE);
+    	//plot.getRenderer().setSeriesShape(numAnchorlessPoints, new Ellipse2D.Double(-3.5, -3.5, 7, 7));
+    	System.out.println("Num Anchorless Points: " + numAnchorlessPoints);
+    	renderer.setSeriesShapesVisible(numAnchorlessPoints, false);
+    	System.out.println("After setSeriesShapesVisible");
+    	//plot.getRenderer().setSeriesShape(i, ShapeUtilities.createDiagonalCross(1, 1));
+    	
+    	anchorlessLastCoordinate = new Coordinate(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+    	numAnchorlessPoints++;
+    }
+    
     public  void addAnchorPoint(Coordinate coordinate) {
     	System.out.println("In add anchor point.");
     	if (xyDataset == null) {
@@ -228,17 +278,17 @@ public class GraphPlot {
         	System.out.println("Size of series: " + series.getItemCount());
         	xyDataset = new XYSeriesCollection(newSeries);
 	    	//newDataset.addSeries(newSeries);
-        	plot.setDataset(xyDataset);
+        	plot.setDataset(0, xyDataset);
     	} else {
 	    	final XYSeries newSeries = new XYSeries(i);
 	    	newSeries.add(coordinate.getX(), coordinate.getY());
 	    	XYSeriesCollection newDataset = (XYSeriesCollection) xyDataset;
 	    	newDataset.addSeries(newSeries);
-	    	plot.setDataset(newDataset);
+	    	plot.setDataset(0, newDataset);
     	}
     	i++;
     	//XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-    	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+    	XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer(0);
     	renderer.setSeriesLinesVisible(i-1, false);
     	renderer.setSeriesShapesVisible(i-1, true);
     	System.out.println("Just before series paint");
@@ -248,7 +298,7 @@ public class GraphPlot {
     	//renderer.setSeriesShape(i-1, new Ellipse2D.Double(-4, -4, 8, 8));
     	//renderer.setSeriesShape(i-1, ShapeUtilities.rotateShape(ShapeUtilities.createDiagonalCross(100, .1f), 40.055, 0, 0));
     	renderer.setSeriesShape(i-1, ShapeUtilities.createRegularCross(5, .5f));
-    	plot.setRenderer(renderer);
+    	plot.setRenderer(0, renderer);
     	//plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+.5, coordinate.getY()+.5));
     	plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+computePixelWidth(10), coordinate.getY()+computePixelHeight(10)));
        	numAnchorPoints++;

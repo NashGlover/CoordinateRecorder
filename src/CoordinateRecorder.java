@@ -47,7 +47,7 @@ public class CoordinateRecorder extends Thread {
     Boolean first = true;
     Socket clientSocket;
     GraphPlot plot;
-    GraphPlot anchorlessPlot = new GraphPlot();
+    //GraphPlot anchorlessPlot = new GraphPlot();
     Boolean heading = false;
     
     double angleInDegrees;
@@ -356,8 +356,9 @@ public class CoordinateRecorder extends Thread {
                                         Coordinate coordinate = new Coordinate(x, y, z, timestamp);
                                         aionavCoordinates.add(coordinate);
                                         System.out.println("Anchorless X: " + anchorlessX);
-                                        anchorlessPlot.addPoint(new Coordinate(anchorlessX, anchorlessY, z));
+                                        //anchorlessPlot.addPoint(new Coordinate(anchorlessX, anchorlessY, z));
                                         plot.addPoint(coordinate);
+                                        plot.addAnchorlessPoint(new Coordinate(anchorlessX, anchorlessY, z));
                                         
                                         currLine = String.format("Step: " + steps + "%nTime: " + dateString + "%nx: %.3f%ny: %.3f%nz: %.3f%n%n", x, y, z);
                                         System.out.println(currLine);
@@ -401,9 +402,9 @@ public class CoordinateRecorder extends Thread {
         }
     }
     
-    public GraphPlot getAnchorlessPlot() {
-    	return anchorlessPlot;
-    }
+    /*public GraphPlot getAnchorlessPlot() {
+    	//return anchorlessPlot;
+    }*/
     
     private double distance(double x1, double x2, double y1, double y2) {
     	return Math.sqrt(Math.pow((x2-x1), 2) + Math.pow((y2-y1), 2));
