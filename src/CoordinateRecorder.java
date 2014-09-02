@@ -19,7 +19,12 @@ public class CoordinateRecorder extends Thread {
 	int steps = 0;
     Map<Character, Coordinate> anchorPoints = new HashMap<Character, Coordinate>();
     String distanceStart = "Distance from beginning to end: ";
+    
     ArrayList<Coordinate> aionavCoordinates = new ArrayList<Coordinate>(300);
+    ArrayList<Coordinate> anchorlessCoordinates = new ArrayList<Coordinate>(200);
+    ArrayList<Coordinate> anchoredCoordinates = new ArrayList<Coordinate>(200);
+    ArrayList<Coordinate> anchorCoordinates = new ArrayList<Coordinate>(50);
+    
     Boolean marked = false;
     Boolean correcting = false;
     Boolean mark = false;
@@ -67,6 +72,7 @@ public class CoordinateRecorder extends Thread {
         anchorPoints.put(character, coordinate);
         System.out.println("New Anchor Size: " + anchorPoints.size());
         plot.addAnchorPoint(coordinate);
+        anchorCoordinates.add(coordinate);
     }
     
     public void atAnchor(char character) {
@@ -353,12 +359,18 @@ public class CoordinateRecorder extends Thread {
                                         	workingText.append("At anchor point " + characterPair + "\n");
                                         }
                                         
+                                        Coordinate anchorlessCoordinate = new Coordinate(anchorlessX, anchorlessY, z);
                                         Coordinate coordinate = new Coordinate(x, y, z, timestamp);
+                                        
                                         aionavCoordinates.add(coordinate);
                                         System.out.println("Anchorless X: " + anchorlessX);
                                         //anchorlessPlot.addPoint(new Coordinate(anchorlessX, anchorlessY, z));
                                         plot.addPoint(coordinate);
                                         plot.addAnchorlessPoint(new Coordinate(anchorlessX, anchorlessY, z));
+                                        
+                                        /* Log all coordinates for save logging */
+                                        anchorlessCoordinates.add(anchorlessCoordinate);
+                                        anchoredCoordinates.add(coordinate);
                                         
                                         currLine = String.format("Step: " + steps + "%nTime: " + dateString + "%nx: %.3f%ny: %.3f%nz: %.3f%n%n", x, y, z);
                                         System.out.println(currLine);
@@ -405,6 +417,30 @@ public class CoordinateRecorder extends Thread {
     /*public GraphPlot getAnchorlessPlot() {
     	//return anchorlessPlot;
     }*/
+    
+    public void saveCoordinateLog(Long time) {
+    	PrintWriter writer = null;
+    	try {
+    		writer = new PrintWriter(time + "_log.txt", "UTF-8");
+    		writer.println("Anchors");
+    		for (Coordinate anchor : anchorCoordinates) {
+    			writer.println(anchor.getX() + " " + anchor.getY() + " " + anchor.getZ());
+    		}
+    		writer.println();
+    		writer.println("Anchorless");
+    		for (Coordinate anchorlessCoordinate : anchorlessCoordinates) {
+    			writer.println(anchorlessCoordinate.getX() + " " + anchorlessCoordinate.getY() + " " + anchorlessCoordinate.getZ());
+    		} 
+    		writer.println();
+    		writer.println("Anchored");
+    		for (Coordinate anchoredCoordinate : anchoredCoordinates) {
+    			writer.println(anchoredCoordinate.getX() + " " + anchoredCoordinate.getY() + " " + anchoredCoordinate.getZ());
+    		}
+    	} catch (Exception e) {
+    		System.out.println("Unsupported encoding exception");
+    	}
+    	writer.close();
+    }
     
     private double distance(double x1, double x2, double y1, double y2) {
     	return Math.sqrt(Math.pow((x2-x1), 2) + Math.pow((y2-y1), 2));

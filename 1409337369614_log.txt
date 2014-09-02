@@ -1,0 +1,7 @@
+Anchors
+
+Anchorless
+0.0 0.0 0.0
+
+Anchored
+0.0 0.0 0.0

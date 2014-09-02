@@ -66,6 +66,7 @@ public class Main {
 	JButton saveButton;
 	JButton addAnchorButton;
 	JButton headingXPlus;
+	JButton saveLogButton;
 	
 	CoordinateRecorder recorder;
 	
@@ -246,7 +247,9 @@ public class Main {
 		
 		saveButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-				plot.saveChart("chart.png");
+				long time = System.currentTimeMillis();
+				plot.saveChart(time + "_chart.png");
+				recorder.saveCoordinateLog(time);
 				//recorder.getAnchorlessPlot().saveChart("anchorlessChart.png");
 			}
 		});

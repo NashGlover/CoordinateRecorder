@@ -93,6 +93,9 @@ public class GraphPlot {
 	private  char anchorChar = 65;
 	private  JFreeChart chart;
 	
+	private XYTextAnnotation anchorlessTextAnnotation;
+	private XYTextAnnotation anchoredTextAnnotation;
+	
 	public JFrame getJFrame() {
 		return this.f;
 	}
@@ -203,6 +206,12 @@ public class GraphPlot {
         	//plot.getRenderer().setSeriesShape(i, ShapeUtilities.createDiagonalCross(1, 1));
     	}
     	else {
+    		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer(0);
+    		if (numPoints >= 2) {
+    			renderer.removeAnnotation(anchoredTextAnnotation);
+    		}
+    		anchoredTextAnnotation = new XYTextAnnotation("(" + (double)Math.round(coordinate.getX() * 1000) / 1000 + ", " + (double)Math.round(coordinate.getY() * 1000) / 1000 + ")" , coordinate.getX() + .1, coordinate.getY()+ .3);
+    		renderer.addAnnotation(anchoredTextAnnotation);
     		final XYSeries newSeries = new XYSeries(i);
     		newSeries.add(lastCoordinate.getX(), lastCoordinate.getY());
     		newSeries.add(coordinate.getX(), coordinate.getY());
@@ -247,6 +256,12 @@ public class GraphPlot {
         	System.out.println("Anchorless dataset series number " + anchorlessXYDataset.getSeriesCount());
     	}
     	else {
+    		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer(1);
+    		if (numAnchorlessPoints >= 2) {
+    			renderer.removeAnnotation(anchorlessTextAnnotation);
+    		}
+    		anchorlessTextAnnotation = new XYTextAnnotation("(" + (double)Math.round(coordinate.getX() * 1000) / 1000 + ", " + (double)Math.round(coordinate.getY() * 1000) / 1000 + ")" , coordinate.getX() + .1, coordinate.getY()+ .3);
+    		renderer.addAnnotation(anchorlessTextAnnotation);
     		final XYSeries newSeries = new XYSeries(numAnchorlessPoints);
     		newSeries.add(anchorlessLastCoordinate.getX(), anchorlessLastCoordinate.getY());
     		newSeries.add(coordinate.getX(), coordinate.getY());
@@ -301,7 +316,7 @@ public class GraphPlot {
     	plot.setRenderer(0, renderer);
     	//plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+.5, coordinate.getY()+.5));
     	plot.addAnnotation(new XYTextAnnotation(new Character((char)(anchorChar+(char)numAnchorPoints)).toString(), coordinate.getX()+computePixelWidth(10), coordinate.getY()+computePixelHeight(10)));
-       	numAnchorPoints++;
+    	numAnchorPoints++;
     }
     
     public  void atAnchorPoint(Coordinate coordinate) {
@@ -398,7 +413,7 @@ public class GraphPlot {
         	
         	@Override
             public Dimension getPreferredSize() {
-                return new Dimension(800, 400);
+                return new Dimension(500, 500);
             }
         };
         
@@ -630,7 +645,7 @@ public class GraphPlot {
 	public void saveChart(String fileName) {
 		try {
 			System.out.println("In save chart");
-			ChartUtilities.saveChartAsPNG(new File(fileName), chart, 3000, 1688);
+			ChartUtilities.saveChartAsPNG(new File(fileName), chart, 1500, 1500);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
