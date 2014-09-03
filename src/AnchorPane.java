@@ -134,7 +134,7 @@ public class AnchorPane extends javax.swing.JPanel {
     private void setAnchor() {
     	System.out.println("Set button presed");
     	System.out.println(xTextField.getText());
-        coordinate = new Coordinate(Double.parseDouble(xTextField.getText()), Double.parseDouble(yTextField.getText()), Double.parseDouble(zTextField.getText()));
+        coordinate = new Coordinate(Double.parseDouble(xTextField.getText()), Double.parseDouble(yTextField.getText()), Double.parseDouble(zTextField.getText()), true);
         System.out.println(character);
         System.out.println("After new coordinate");
         recorder.setAnchor(coordinate, character);

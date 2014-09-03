@@ -85,6 +85,7 @@ public class CoordinateRecorder extends Thread {
         
         System.out.println("The difference between the current and anchor point: " + anchorDiffX + " " + anchorDiffY);
         plot.atAnchorPoint(coordinate);
+        anchoredCoordinates.add(coordinate);
        /* firstX = coordinate.getX();
         firstY = coordinate.getY();
         firstZ = coordinate.getZ();
@@ -434,6 +435,9 @@ public class CoordinateRecorder extends Thread {
     		writer.println();
     		writer.println("Anchored");
     		for (Coordinate anchoredCoordinate : anchoredCoordinates) {
+    			if (anchoredCoordinate.getAnchor() == true) {
+    				writer.println("AtAnchor");
+    			}
     			writer.println(anchoredCoordinate.getX() + " " + anchoredCoordinate.getY() + " " + anchoredCoordinate.getZ());
     		}
     	} catch (Exception e) {

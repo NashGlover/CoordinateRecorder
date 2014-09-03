@@ -8,11 +8,19 @@ public class Coordinate {
     private double y;
     private double z;
     private long timestamp;
+    private Boolean anchor;
     
     public Coordinate (double _x, double _y, double _z) {
     	x = _x;
     	y = _y;
     	z = _z;
+    	anchor = false;
+    }
+    public Coordinate (double _x, double _y, double _z, Boolean _anchor) {
+    	x = _x;
+    	y = _y;
+    	z = _z;
+    	anchor = _anchor;
     }
     
     public Coordinate (double _x, double _y, double _z, long _timestamp) {
@@ -20,6 +28,15 @@ public class Coordinate {
         y = _y;
         z = _z;
         timestamp = _timestamp;
+        anchor = false;
+    }
+    
+    public Coordinate (double _x, double _y, double _z, long _timestamp, Boolean _anchor) {
+        x = _x;
+        y = _y;
+        z = _z;
+        timestamp = _timestamp;
+        anchor = _anchor;
     }
     
     public double getX() {
@@ -36,5 +53,9 @@ public class Coordinate {
     
     public double getTimestamp() {
         return timestamp;
+    }
+    
+    public Boolean getAnchor() {
+    	return anchor;
     }
 }
