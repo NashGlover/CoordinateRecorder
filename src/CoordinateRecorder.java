@@ -28,6 +28,7 @@ public class CoordinateRecorder extends Thread {
     Boolean marked = false;
     Boolean correcting = false;
     Boolean mark = false;
+    private double timePos = 0;
     private double anchorDiffX = 0, anchorDiffY = 0;
     private Integer markCount = 0;
     private double x = 0, y = 0, z = 0;
@@ -77,6 +78,7 @@ public class CoordinateRecorder extends Thread {
     
     public void atAnchor(char character) {
         Coordinate coordinate = (Coordinate)anchorPoints.get(character);
+        coordinate.setTimestamp(timePos);
         anchorDiffX = anchorDiffX + (coordinate.getX() - lastStep.getX());
         anchorDiffY = anchorDiffY + (coordinate.getY() - lastStep.getY());
         
@@ -189,12 +191,11 @@ public class CoordinateRecorder extends Thread {
                                 }
                                 if (packet_type == 1)
                                 {
-                                        double timePos;
                                         System.out.printf("x,y,z Update%n");
                                         timePos = buffer.getDouble(24);
                                         System.out.println("Timestamp as double: " + timestamp);
                                         
-                                        Date currentDate = new Date(timestamp);
+                                        Date currentDate = new Date((long)timePos);
                                         DateFormat df = new SimpleDateFormat("MM-dd-yy HH:mm:ss ");
                                         String dateString = df.format(currentDate);
                                         
@@ -360,8 +361,8 @@ public class CoordinateRecorder extends Thread {
                                         	workingText.append("At anchor point " + characterPair + "\n");
                                         }
                                         
-                                        Coordinate anchorlessCoordinate = new Coordinate(anchorlessX, anchorlessY, z);
-                                        Coordinate coordinate = new Coordinate(x, y, z, timestamp);
+                                        Coordinate anchorlessCoordinate = new Coordinate(anchorlessX, anchorlessY, z, timePos);
+                                        Coordinate coordinate = new Coordinate(x, y, z, timePos);
                                         
                                         aionavCoordinates.add(coordinate);
                                         System.out.println("Anchorless X: " + anchorlessX);
@@ -430,7 +431,7 @@ public class CoordinateRecorder extends Thread {
     		writer.println();
     		writer.println("Anchorless");
     		for (Coordinate anchorlessCoordinate : anchorlessCoordinates) {
-    			writer.println(anchorlessCoordinate.getX() + " " + anchorlessCoordinate.getY() + " " + anchorlessCoordinate.getZ());
+    			writer.println(anchorlessCoordinate.getX() + " " + anchorlessCoordinate.getY() + " " + anchorlessCoordinate.getZ() + " " + anchorlessCoordinate.getTimestamp());
     		} 
     		writer.println();
     		writer.println("Anchored");
@@ -438,7 +439,7 @@ public class CoordinateRecorder extends Thread {
     			if (anchoredCoordinate.getAnchor() == true) {
     				writer.println("AtAnchor");
     			}
-    			writer.println(anchoredCoordinate.getX() + " " + anchoredCoordinate.getY() + " " + anchoredCoordinate.getZ());
+    			writer.println(anchoredCoordinate.getX() + " " + anchoredCoordinate.getY() + " " + anchoredCoordinate.getZ() + " " + anchoredCoordinate.getTimestamp());
     		}
     	} catch (Exception e) {
     		System.out.println("Unsupported encoding exception");
